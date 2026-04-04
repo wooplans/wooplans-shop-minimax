@@ -25,8 +25,8 @@ jobs:
       - name: Deploy to Cloudflare Workers
         run: |
           export CLOUDFLARE_ACCOUNT_ID="${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
-          printf '%s' "$CHARIOW_API_KEY" | wrangler secret put CHARIOW_API_KEY --env production
-          wrangler deploy --env production --no-bundle
+          echo "$CHARIOW_API_KEY" | wrangler secret put CHARIOW_API_KEY --env production
+          wrangler deploy --env production
         working-directory: checkout-worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

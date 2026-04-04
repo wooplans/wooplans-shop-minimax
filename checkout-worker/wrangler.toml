@@ -3,6 +3,9 @@ main = "src/index.ts"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 
+[env.production]
+name = "wooplans-checkout"
+
 [vars]
 # Default product IDs (can be overridden per request)
 VILLA_PRODUCT_ID = "prd_n770b0"
