@@ -140,6 +140,37 @@ async function fetchPlansFromSupabase() {
   return plans;
 }
 
+function transformPlan(p) {
+  return {
+    id: p.id,
+    planId: p.id,
+    slug: slugify(p.title),
+    type: p.type,
+    title: p.title,
+    subtitle: p.subtitle || '',
+    description: p.desc || p.description || '',
+    rooms: p.beds || 0,
+    bathrooms: p.baths || 0,
+    surface: parseFloat(String(p.area).replace(',', '.')) || 0,
+    floors: p.floors || 1,
+    price: parseInt(String(p.priceBasic || '14900').replace(/\s/g, '')) || 14900,
+    estimateCost: p.cost || '',
+    images: p.images || [],
+    features: p.features || [],
+    extrasBasic: p.extrasBasic || [],
+    extrasComplete: p.extrasComplete || [],
+    rating: parseFloat(p.rating) || 4.8,
+    reviews: parseInt(p.reviews) || 0,
+    pdfBasicUrl: p.pdf_basic_url || '',
+    chariowBasicId: p.chariow_basic_id || '',
+    chariowCheckoutUrl: p.chariow_basic_id 
+      ? `https://shop.wooplans.com/checkout/${p.chariow_basic_id}`
+      : `https://shop.wooplans.com/checkout/${p.id}`,
+    status: p.status,
+    createdAt: p.created_at
+  };
+}
+
 async function loadOrFetchPlans() {
   const plansFile = join(DATA, 'plans.json');
   
@@ -151,7 +182,8 @@ async function loadOrFetchPlans() {
     
     if (age < maxAge) {
       info(`Using cached plans.json (${Math.round(age / 60000)} min old)`);
-      return readJson(plansFile);
+      const rawPlans = readJson(plansFile);
+      return rawPlans.map(transformPlan);
     }
   }
   
@@ -163,7 +195,8 @@ async function loadOrFetchPlans() {
     return plans;
   }
   
-  return readJson(plansFile);
+  const rawPlans = readJson(plansFile);
+  return rawPlans.map(transformPlan);
 }
 
 // ── LOAD TEMPLATES ────────────────────────────────────────────────────────────
