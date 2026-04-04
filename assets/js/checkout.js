@@ -1,6 +1,6 @@
 // Checkout Modal Logic
 
-const CHECKOUT_API = 'https://checkout.wooplans.workers.dev/checkout';
+const CHECKOUT_API = 'https://xlmwzvkqjnojdldzrol.supabase.co/functions/v1/chariow-checkout';
 
 // Country data with phone codes
 const COUNTRIES = [
