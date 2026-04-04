@@ -26,15 +26,6 @@
   </div>
 </section>
 
-<!-- MOBILE CTA -->
-<div class="det-mobile-cta">
-  <button type="button" onclick="openCheckoutModal(window.planData)" class="det-mobile-cta-btn">
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    Télécharger pour {{priceDisplay}}
-  </button>
-  <div class="det-mobile-cta-price">Plan Basique avec estimation des coûts</div>
-</div>
-
 <!-- MAIN CONTENT -->
 <section class="det-content">
   <div class="det-main">
@@ -80,12 +71,64 @@
     
     <p class="det-desc">{{description}}</p>
     
+    <!-- PRICING CARD (visible on mobile after description) -->
+    <div class="det-sidebar-mobile">
+      <div class="purchase-box">
+        <div class="pbox-total">
+          <div class="pbox-total-tag">📱 Paiement Mobile Money</div>
+          <div class="pbox-total-label">Prix du Plan Basique</div>
+          <div class="pbox-total-val">{{priceDisplay}} FCFA</div>
+          <div class="pbox-total-sub">Inclut le plan PDF + estimation des coûts</div>
+        </div>
+        
+        <!-- PLAN BASIQUE CARD -->
+        <div class="opt-card featured selected">
+          <div class="opt-promo-badge">−50%</div>
+          <div class="opt-card-head">
+            <div class="opt-card-left">
+              <div class="opt-card-name">Plan Basique + Devis</div>
+              <div class="opt-card-sub">Pour démarrer et personnaliser votre projet</div>
+            </div>
+            <div class="opt-card-price">
+              <div class="opt-price-old">30 000 FCFA</div>
+              <div class="opt-price-val">{{priceDisplay}}</div>
+              <div class="opt-price-cur">FCFA</div>
+            </div>
+          </div>
+          <span class="opt-card-tag tag-inst" style="margin-bottom:12px;display:inline-flex">⚡ INSTANTANÉ</span>
+          <ul class="opt-card-items">
+            <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Plan de distribution et dimensions</li>
+            <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Devis estimatif de la fondation aux finitions</li>
+            <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Rendu 3D extérieurs</li>
+            <li><svg viewBox="0 0 24 24"><poly polyline points="20 6 9 17 4 12"/></svg>Échange avec un architecte sur WhatsApp</li>
+          </ul>
+        </div>
+        
+        <button type="button" onclick="openCheckoutModal(window.planData)" class="cta-main">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Télécharger maintenant
+        </button>
+        
+        <div class="trust-note" style="margin-bottom:22px">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Paiement Mobile Money sécurisé — Cameroun : MTN MoMo, Orange Money
+        </div>
+        
+        <!-- PLAN COMPLET CTA -->
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--creme-3)">
+          <p style="font-size:.8rem;color:var(--gris);margin-bottom:12px">Vous souhaitez un dossier complet personnalisé ?</p>
+          <a href="https://wa.me/237694327885?text=Bonjour%2C%20je%20suis%20intéressé%20par%20le%20Plan%20Complet%20pour%20{{title}} ({{planId}})" class="cta-secondary" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+            Commander le Plan Complet
+          </a>
+        </div>
+      </div>
+    </div>
+    
     <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--brun);margin-bottom:12px">Ce qui est inclus</h3>
     <ul class="det-features">
 {{extrasBasic}}
     </ul>
-    
-    {{similarPlans}}
     
     <!-- FAQ -->
     <section class="faq-section">
@@ -144,9 +187,12 @@
         </div>
       </div>
     </section>
+
+    <!-- SIMILAR PLANS (at the bottom) -->
+    {{similarPlans}}
   </div>
   
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR (desktop only - hidden on mobile via CSS) -->
   <div class="det-sidebar">
     <div class="purchase-box">
       <div class="pbox-total">
@@ -193,7 +239,7 @@
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--creme-3)">
         <p style="font-size:.8rem;color:var(--gris);margin-bottom:12px">Vous souhaitez un dossier complet personnalisé ?</p>
         <a href="https://wa.me/237694327885?text=Bonjour%2C%20je%20suis%20intéressé%20par%20le%20Plan%20Complet%20pour%20{{title}} ({{planId}})" class="cta-secondary" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.670.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
           Commander le Plan Complet
         </a>
       </div>
