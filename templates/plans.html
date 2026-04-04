@@ -1,0 +1,68 @@
+<!-- PLANS HEADER -->
+<section class="cat-header">
+  <div class="cat-header-inner">
+    <div class="hero-eyebrow">WooPlans — Catalogue Complet</div>
+    <h1 class="cat-title">Tous nos <em>Plans</em> de Maisons</h1>
+    <p class="cat-desc">{{intro}}</p>
+    <div class="cat-stats">
+      <span><strong>{{totalPlans}}</strong> plans disponibles — Villas & Duplex</span>
+    </div>
+  </div>
+</section>
+
+<!-- FILTERS -->
+<section class="cat-filters">
+  <div class="filters">
+    <button class="f-btn active" data-filter="all" onclick="filterPlans('all',this)">Tous les plans</button>
+    <button class="f-btn" data-filter="villa" onclick="filterPlans('villa',this)">Villas</button>
+    <button class="f-btn" data-filter="duplex" onclick="filterPlans('duplex',this)">Duplex</button>
+  </div>
+</section>
+
+<!-- PLANS GRID -->
+<section class="cat-grid">
+  <div class="plans-grid" id="plans-grid">
+{{#items}}
+    <a href="/plans/{{slug}}/" class="plan-card" data-type="{{type}}">
+      <div class="card-img-wrap">
+        <img class="card-img" src="{{firstImage}}" alt="{{title}}" loading="lazy" width="400" height="300">
+        <span class="card-badge {{badgeClass}}">{{badgeText}}</span>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">{{title}}</h3>
+        <p class="card-sub">{{subtitle}}</p>
+        <div class="card-specs">
+          <span class="spec">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            {{rooms}} ch
+          </span>
+          <span class="spec">
+            <svg viewBox="0 0 24 24"><path d="M9 6m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M15 6m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M9 8v12h6v-8h-3v8h-3"/><path d="M6 12h12"/></svg>
+            {{surface}} m²
+          </span>
+        </div>
+        <div class="card-footer">
+          <div>
+            <div class="price-lbl">Plan Basique</div>
+            <div class="card-price">{{priceDisplay}}</div>
+          </div>
+          <span class="card-btn">
+            Voir le plan
+            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          </span>
+        </div>
+      </div>
+    </a>
+{{/items}}
+  </div>
+</section>
+
+<!-- SEO TEXT -->
+<section class="cat-seo">
+  <h2>Pourquoi choisir un plan WooPlans ?</h2>
+  <p>WooPlans propose une collection complète de plans de maisons conçus pour l'Afrique francophone. Nos plans sont développés par des architects professionnels connaissant parfaitement les spécificités de la construction en Afrique : climat tropical, matériaux locaux, modes de vie familiaux.</p>
+  <p>Chaque plan inclut un plan de distribution détaillé avec toutes les dimensions, un devis estimatif calculé selon les prix locaux des matériaux et de la main-d'œuvre, et des rendus 3D pour visualiser votre future maison avant même de commencer la construction.</p>
+  <p>Que vous soyez au Cameroun, en Côte d'Ivoire, au Sénégal ou dans tout autre pays francophone d'Afrique, WooPlans vous accompagne dans votre projet de construction avec des plans de qualité professionnelle à des prix accessibles.</p>
+</section>
+
+<script src="{{filtersJsPath}}" defer></script>

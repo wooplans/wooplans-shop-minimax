@@ -207,6 +207,7 @@ function loadTemplates() {
     home: read(join(TEMPLATES, 'home.html')),
     plan: read(join(TEMPLATES, 'plan.html')),
     category: read(join(TEMPLATES, 'category.html')),
+    plans: read(join(TEMPLATES, 'plans.html')),
     '404': read(join(TEMPLATES, '404.html'))
   };
 }
@@ -411,6 +412,55 @@ function generatePlanPage(templates, plan, allPlans, assets) {
   return render(templates.base, planData);
 }
 
+function generatePlansPage(templates, plans, assets) {
+  const plansItems = plans.map(p => ({
+    slug: p.slug,
+    type: p.type,
+    title: p.title,
+    subtitle: p.subtitle,
+    rooms: p.rooms,
+    bathrooms: p.bathrooms,
+    surface: p.surface,
+    price: p.price.toLocaleString('fr-FR'),
+    currency: CFG.currency,
+    firstImage: p.images[0] || '',
+    badgeClass: p.type === 'villa' ? 'badge-villa' : 'badge-duplex',
+    badgeText: p.type === 'villa' ? 'Villa' : 'Duplex',
+    priceDisplay: `${p.price.toLocaleString('fr-FR')} FCFA`
+  }));
+
+  const intro = 'Parcourez notre catalogue complet de plans de maisons conçus pour l\'Afrique. Villas plain-pied et duplex contemporains, tous avec estimation des coûts de construction.';
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Tous les Plans de Maisons — WooPlans',
+    description: intro,
+    url: `${CFG.siteUrl}/plans/`
+  });
+
+  const plansData = {
+    title: 'Plans de Maisons Modernes — WooPlans | Catalogue Complet',
+    description: intro,
+    ogTitle: 'Tous les Plans de Maisons — WooPlans',
+    ogDescription: intro,
+    ogUrl: `${CFG.siteUrl}/plans/`,
+    ogType: 'website',
+    ogImage: plans[0]?.images[0] || '',
+    canonical: `${CFG.siteUrl}/plans/`,
+    jsonLd,
+    content: render(templates.plans, {
+      intro,
+      items: plansItems,
+      totalPlans: plans.length
+    }),
+    criticalCss: assets.criticalCss,
+    bodyClass: 'catalog-all'
+  };
+
+  return render(templates.base, plansData);
+}
+
 function generateCategoryPage(templates, type, plans, assets) {
   const categoryPlans = plans.filter(p => p.type === type);
   
@@ -491,6 +541,7 @@ function generate404(templates, assets) {
 function generateSitemap(plans) {
   const urls = [
     { loc: CFG.siteUrl + '/', priority: '1.0', changefreq: 'daily' },
+    { loc: CFG.siteUrl + '/plans/', priority: '0.8', changefreq: 'daily' },
     { loc: CFG.siteUrl + '/plans/villas/', priority: '0.8', changefreq: 'weekly' },
     { loc: CFG.siteUrl + '/plans/duplex/', priority: '0.8', changefreq: 'weekly' }
   ];
@@ -653,11 +704,23 @@ async function build() {
       .replace('{{turboNavJsPath}}', turboNavJsPath)
       .replace('{{analyticsJsPath}}', analyticsJsPath);
     
+    // Update plans template
+    templates.plans = templates.plans
+      .replace('{{filtersJsPath}}', filtersJsPath)
+      .replace('{{turboNavJsPath}}', turboNavJsPath)
+      .replace('{{analyticsJsPath}}', analyticsJsPath);
+    
     // 5. Generate homepage
     log('Generating homepage...');
     const homeHtml = generateHomePage(templates, plans, assets);
     write(join(DIST, 'index.html'), homeHtml);
     success('Generated index.html');
+    
+    // 5b. Generate /plans/ page
+    log('Generating /plans/ page...');
+    const plansHtml = generatePlansPage(templates, plans, assets);
+    write(join(DIST, 'plans', 'index.html'), plansHtml);
+    success('Generated /plans/index.html');
     
     // 6. Generate category pages
     log('Generating category pages...');
