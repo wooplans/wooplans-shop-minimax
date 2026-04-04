@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WooPlans · Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0c0c;--surface:#161616;--surface2:#1e1e1e;
+  --border:rgba(255,255,255,.07);--gold:#d4af37;
+  --gold-dim:rgba(212,175,55,.12);--gold-border:rgba(212,175,55,.3);
+  --text:#f0f0f0;--text-dim:rgba(255,255,255,.42);--text-mid:rgba(255,255,255,.68);
+  --green:#22c55e;--red:#ef4444;--blue:#60a5fa;--purple:#a78bfa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;font-size:14px;min-height:100vh}
+
+/* ── Gate ── */
+#gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
+.gate-box{background:var(--surface);border:1px solid var(--gold-border);padding:52px 44px;width:380px;text-align:center}
+.gate-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--gold);margin-bottom:3px}
+.gate-sub{color:var(--text-dim);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:36px}
+.gate-box input{width:100%;padding:13px 14px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:.95rem;margin-bottom:12px;outline:none;transition:border .2s}
+.gate-box input:focus{border-color:var(--gold-border)}
+.gate-box button{width:100%;padding:14px;background:var(--gold);color:#1a1200;font-weight:700;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;border:none;cursor:pointer;transition:background .2s}
+.gate-box button:hover{background:#c9a430}
+.gate-err{color:var(--red);font-size:.78rem;margin-top:10px;display:none}
+
+/* ── Layout ── */
+#dashboard{display:none;min-height:100vh}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:10}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:var(--gold);white-space:nowrap}
+.hdr-div{width:1px;height:20px;background:var(--border)}
+.hdr-title{color:var(--text-dim);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-dot 2s infinite;flex-shrink:0}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.25}}
+.live-lbl{color:var(--text-dim);font-size:.72rem}
+.refresh-lbl{color:var(--text-dim);font-size:.72rem}
+
+/* ── Period tabs ── */
+.period-tabs{display:flex;gap:3px;background:var(--surface2);padding:4px}
+.period-tab{padding:6px 14px;font-size:.75rem;cursor:pointer;color:var(--text-dim);letter-spacing:.05em;border:none;background:transparent;text-transform:uppercase;transition:color .2s}
+.period-tab.active{background:var(--gold);color:#1a1200;font-weight:700}
+.period-tab:not(.active):hover{color:var(--text)}
+
+/* ── Main ── */
+main{padding:24px 28px;max-width:1440px}
+
+/* ── KPI ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);padding:20px 18px}
+.kpi-card.gold{border-color:var(--gold-border);background:var(--gold-dim)}
+.kpi-label{font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.11em;margin-bottom:10px}
+.kpi-value{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--text);line-height:1;margin-bottom:5px}
+.kpi-card.gold .kpi-value{color:var(--gold)}
+.kpi-sub{font-size:.68rem;color:var(--text-dim)}
+
+/* ── Rows ── */
+.row-2{display:grid;grid-template-columns:1fr 300px;gap:16px;margin-bottom:18px}
+.row-3{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+
+.card{background:var(--surface);border:1px solid var(--border);padding:22px}
+.card-title{font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.11em;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.card-title span{color:var(--text-mid);text-transform:none;letter-spacing:0;font-size:.75rem}
+
+/* ── Funnel ── */
+.funnel-steps{display:flex;flex-direction:column;gap:12px}
+.funnel-step{display:flex;align-items:center;gap:12px}
+.funnel-lbl{width:130px;font-size:.78rem;color:var(--text-mid);flex-shrink:0}
+.funnel-bar-wrap{flex:1;background:var(--surface2);height:26px;overflow:hidden;position:relative}
+.funnel-bar{height:100%;display:flex;align-items:center;padding-left:10px;font-size:.72rem;font-weight:700;color:rgba(0,0,0,.85);white-space:nowrap;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.funnel-n{width:46px;text-align:right;font-size:.85rem;font-weight:600;color:var(--text);flex-shrink:0}
+.funnel-pct{width:40px;text-align:right;font-size:.72rem;color:var(--text-dim);flex-shrink:0}
+
+/* ── Donut ── */
+.donut-wrap{height:190px;position:relative;display:flex;align-items:center;justify-content:center}
+.donut-legend{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.donut-item{display:flex;align-items:center;gap:9px;font-size:.78rem}
+.donut-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* ── Charts ── */
+.chart-wrap{position:relative;height:210px}
+
+/* ── Feed ── */
+.feed-list{max-height:320px;overflow-y:auto}
+.feed-list::-webkit-scrollbar{width:3px}
+.feed-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1)}
+.feed-empty{color:var(--text-dim);font-size:.8rem;padding:24px 0;text-align:center}
+.feed-head{display:grid;grid-template-columns:100px 1fr 80px 80px 130px;gap:10px;padding:0 0 8px;border-bottom:1px solid var(--border);margin-bottom:2px}
+.feed-head-col{font-size:.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em}
+.feed-item{display:grid;grid-template-columns:100px 1fr 80px 80px 130px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:.77rem}
+.feed-item:last-child{border-bottom:none}
+.badge{display:inline-block;padding:3px 7px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.b-page_view{background:rgba(96,165,250,.12);color:var(--blue)}
+.b-plan_click{background:rgba(212,175,55,.14);color:var(--gold)}
+.b-checkout_open{background:rgba(167,139,250,.14);color:var(--purple)}
+.b-checkout_submit{background:rgba(34,197,94,.14);color:var(--green)}
+.feed-plan{color:var(--text-mid);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feed-type{color:var(--text-dim);font-size:.72rem}
+.feed-opt{color:var(--text-dim);font-size:.72rem}
+.feed-time{color:var(--text-dim);text-align:right;font-size:.72rem}
+.feed-new{animation:fadeRow .6s ease}
+@keyframes fadeRow{from{background:rgba(212,175,55,.1)}to{background:transparent}}
+
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(3,1fr)}.row-2,.row-3{grid-template-columns:1fr}}
+@media(max-width:640px){main{padding:14px}header{padding:0 14px}.kpi-row{grid-template-columns:1fr 1fr}.hdr-title{display:none}}
+</style>
+</head>
+<body>
+
+<!-- Gate -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="gate-logo">WooPlans</div>
+    <div class="gate-sub">Dashboard Analytics</div>
+    <input type="password" id="gate-pw" placeholder="Mot de passe" autocomplete="current-password">
+    <button onclick="checkPw()">Accéder →</button>
+    <div class="gate-err" id="gate-err">Mot de passe incorrect</div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <header>
+    <div class="hdr-left">
+      <div class="hdr-logo">WooPlans</div>
+      <div class="hdr-div"></div>
+      <div class="hdr-title">Analytics</div>
+    </div>
+    <div class="hdr-right">
+      <div class="period-tabs">
+        <button class="period-tab active" data-p="today" onclick="setPeriod(this)">Aujourd'hui</button>
+        <button class="period-tab" data-p="7d" onclick="setPeriod(this)">7 jours</button>
+        <button class="period-tab" data-p="30d" onclick="setPeriod(this)">30 jours</button>
+      </div>
+      <div class="live-dot"></div>
+      <div class="live-lbl">Live</div>
+      <div class="refresh-lbl" id="refresh-lbl">—</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Visiteurs uniques</div>
+        <div class="kpi-value" id="k-vis">—</div>
+        <div class="kpi-sub">visitor IDs distincts</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pages vues</div>
+        <div class="kpi-value" id="k-pv">—</div>
+        <div class="kpi-sub">page_view events</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Plans consultés</div>
+        <div class="kpi-value" id="k-pc">—</div>
+        <div class="kpi-sub">fiches ouvertes</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Checkouts ouverts</div>
+        <div class="kpi-value" id="k-co">—</div>
+        <div class="kpi-sub">formulaires paiement</div>
+      </div>
+      <div class="kpi-card gold">
+        <div class="kpi-label">Taux de conversion</div>
+        <div class="kpi-value" id="k-rate">—</div>
+        <div class="kpi-sub">checkout / visiteur</div>
+      </div>
+    </div>
+
+    <!-- Funnel + Donut -->
+    <div class="row-2">
+      <div class="card">
+        <div class="card-title">Tunnel de conversion</div>
+        <div class="funnel-steps">
+          <div class="funnel-step">
+            <div class="funnel-lbl">Page vue</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" id="fb-pv" style="width:100%;background:var(--blue)"></div></div>
+            <div class="funnel-n" id="fn-pv">—</div>
+            <div class="funnel-pct">100%</div>
+          </div>
+          <div class="funnel-step">
+            <div class="funnel-lbl">Plan consulté</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" id="fb-pc" style="width:0%;background:var(--gold)"></div></div>
+            <div class="funnel-n" id="fn-pc">—</div>
+            <div class="funnel-pct" id="fp-pc">—</div>
+          </div>
+          <div class="funnel-step">
+            <div class="funnel-lbl">Checkout ouvert</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" id="fb-co" style="width:0%;background:var(--purple)"></div></div>
+            <div class="funnel-n" id="fn-co">—</div>
+            <div class="funnel-pct" id="fp-co">—</div>
+          </div>
+          <div class="funnel-step">
+            <div class="funnel-lbl">Checkout soumis</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" id="fb-cs" style="width:0%;background:var(--green)"></div></div>
+            <div class="funnel-n" id="fn-cs">—</div>
+            <div class="funnel-pct" id="fp-cs">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Villa vs Duplex <span id="donut-sub"></span></div>
+        <div class="donut-wrap"><canvas id="c-donut"></canvas></div>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+
+    <!-- Timeline + Top plans -->
+    <div class="row-3">
+      <div class="card">
+        <div class="card-title">Évolution des événements</div>
+        <div class="chart-wrap"><canvas id="c-timeline"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Top plans consultés</div>
+        <div class="chart-wrap"><canvas id="c-plans"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Feed -->
+    <div class="card">
+      <div class="card-title">Activité en temps réel <span id="feed-meta"></span></div>
+      <div class="feed-head">
+        <div class="feed-head-col">Événement</div>
+        <div class="feed-head-col">Plan</div>
+        <div class="feed-head-col">Type</div>
+        <div class="feed-head-col">Option</div>
+        <div class="feed-head-col" style="text-align:right">Heure</div>
+      </div>
+      <div class="feed-list" id="feed-list">
+        <div class="feed-empty">Chargement…</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const PASS    = 'wooplans2025';
+const SB_URL  = 'https://xlmwzvkqjnoijdldzrol.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbXd6dmtxam5vaWpkbGR6cm9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTAzMjAsImV4cCI6MjA4OTY4NjMyMH0.cQcRRHaaMiht2Tq9CB9l4_XN8-SOjixxhHFJDjytze4';
+
+let sb, period = 'today';
+let chartTimeline, chartPlans, chartDonut;
+let events = [];
+
+/* ── Gate ── */
+function checkPw(){
+  if(document.getElementById('gate-pw').value === PASS){
+    sessionStorage.setItem('wp_adm','1');
+    document.getElementById('gate').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    init();
+  } else {
+    document.getElementById('gate-err').style.display='block';
+  }
+}
+document.getElementById('gate-pw').addEventListener('keydown',e=>{if(e.key==='Enter')checkPw()});
+if(sessionStorage.getItem('wp_adm')==='1'){
+  document.getElementById('gate').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  init();
+}
+
+/* ── Init ── */
+function init(){
+  sb = window.supabase.createClient(SB_URL, SB_KEY);
+  loadData();
+  setInterval(loadData, 60000);
+  subscribeRT();
+}
+
+/* ── Period ── */
+function setPeriod(btn){
+  document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  period = btn.dataset.p;
+  loadData();
+}
+function periodStart(){
+  const now = new Date();
+  if(period==='today'){ const d=new Date(now); d.setHours(0,0,0,0); return d; }
+  if(period==='7d')  { const d=new Date(now); d.setDate(d.getDate()-7);  return d; }
+  const d=new Date(now); d.setDate(d.getDate()-30); return d;
+}
+
+/* ── Load ── */
+async function loadData(){
+  const {data,error} = await sb
+    .from('analytics_events')
+    .select('*')
+    .gte('created_at', periodStart().toISOString())
+    .order('created_at',{ascending:false})
+    .limit(3000);
+  if(error){ console.error(error); return; }
+  events = data||[];
+  renderAll();
+  document.getElementById('refresh-lbl').textContent =
+    'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* ── Render all ── */
+function renderAll(){
+  renderKPIs();
+  renderFunnel();
+  renderTimeline();
+  renderTopPlans();
+  renderDonut();
+  renderFeed();
+}
+
+/* ── KPIs ── */
+function renderKPIs(){
+  const visitors  = new Set(events.map(e=>e.visitor_id).filter(Boolean)).size;
+  const pageviews = events.filter(e=>e.event_type==='page_view').length;
+  const clicks    = events.filter(e=>e.event_type==='plan_click').length;
+  const checkouts = events.filter(e=>e.event_type==='checkout_open').length;
+  const rate      = visitors>0 ? Math.round(checkouts/visitors*100)+'%' : '0%';
+  set('k-vis',  fmt(visitors));
+  set('k-pv',   fmt(pageviews));
+  set('k-pc',   fmt(clicks));
+  set('k-co',   fmt(checkouts));
+  set('k-rate', rate);
+}
+
+/* ── Funnel ── */
+function renderFunnel(){
+  const pv = events.filter(e=>e.event_type==='page_view').length;
+  const pc = events.filter(e=>e.event_type==='plan_click').length;
+  const co = events.filter(e=>e.event_type==='checkout_open').length;
+  const cs = events.filter(e=>e.event_type==='checkout_submit').length;
+  const top = Math.max(pv,1);
+  const pct = (n,d) => d>0 ? Math.round(n/d*100)+'%' : '0%';
+  set('fn-pv',pv); set('fn-pc',pc); set('fn-co',co); set('fn-cs',cs);
+  set('fp-pc',pct(pc,pv)); set('fp-co',pct(co,pv)); set('fp-cs',pct(cs,pv));
+  document.getElementById('fb-pv').style.width='100%';
+  document.getElementById('fb-pc').style.width=(pc/top*100)+'%';
+  document.getElementById('fb-co').style.width=(co/top*100)+'%';
+  document.getElementById('fb-cs').style.width=(cs/top*100)+'%';
+}
+
+/* ── Timeline ── */
+function renderTimeline(){
+  const isToday = period==='today';
+  const key = e => {
+    const d = new Date(e.created_at);
+    return isToday ? d.getHours()+'h' : d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+  };
+  const now = new Date();
+  const labels = [];
+  if(isToday){
+    for(let h=0;h<=now.getHours();h++) labels.push(h+'h');
+  } else {
+    const days = period==='7d'?7:30;
+    for(let i=days-1;i>=0;i--){
+      const d=new Date(now); d.setDate(d.getDate()-i);
+      labels.push(d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}));
+    }
+  }
+  const types  = ['page_view','plan_click','checkout_open','checkout_submit'];
+  const colors = ['rgba(96,165,250,.85)','rgba(212,175,55,.85)','rgba(167,139,250,.85)','rgba(34,197,94,.85)'];
+  const names  = ['Page vue','Plan consulté','Checkout ouvert','Checkout soumis'];
+  const datasets = types.map((t,i)=>{
+    const cnt={};
+    events.filter(e=>e.event_type===t).forEach(e=>{ const k=key(e); cnt[k]=(cnt[k]||0)+1; });
+    return {
+      label:names[i], data:labels.map(l=>cnt[l]||0),
+      borderColor:colors[i], backgroundColor:colors[i].replace('.85)','.1)'),
+      borderWidth:1.5, tension:.35, fill:true, pointRadius:2
+    };
+  });
+  if(chartTimeline) chartTimeline.destroy();
+  chartTimeline = new Chart(document.getElementById('c-timeline').getContext('2d'),{
+    type:'line', data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'rgba(255,255,255,.45)',boxWidth:10,font:{size:10}}}},
+      scales:{
+        x:{ticks:{color:'rgba(255,255,255,.3)',maxTicksLimit:10,font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+        y:{ticks:{color:'rgba(255,255,255,.3)',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'},beginAtZero:true}
+      }
+    }
+  });
+}
+
+/* ── Top plans ── */
+function renderTopPlans(){
+  const cnt={};
+  events.filter(e=>e.event_type==='plan_click'&&e.plan_title).forEach(e=>{
+    cnt[e.plan_title]=(cnt[e.plan_title]||0)+1;
+  });
+  const sorted=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(chartPlans) chartPlans.destroy();
+  chartPlans = new Chart(document.getElementById('c-plans').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:sorted.map(([t])=>t.length>20?t.slice(0,20)+'…':t),
+      datasets:[{
+        label:'Clics', data:sorted.map(([,v])=>v),
+        backgroundColor:'rgba(212,175,55,.65)', borderColor:'rgba(212,175,55,1)',
+        borderWidth:1, borderRadius:2
+      }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'rgba(255,255,255,.3)',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'},beginAtZero:true},
+        y:{ticks:{color:'rgba(255,255,255,.55)',font:{size:11}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+/* ── Donut ── */
+function renderDonut(){
+  const clicks = events.filter(e=>e.event_type==='plan_click'&&e.plan_type);
+  const villa  = clicks.filter(e=>e.plan_type==='villa').length;
+  const duplex = clicks.filter(e=>e.plan_type==='duplex').length;
+  const total  = villa+duplex;
+  set('donut-sub', total ? total+' clics' : '');
+  if(chartDonut) chartDonut.destroy();
+  chartDonut = new Chart(document.getElementById('c-donut').getContext('2d'),{
+    type:'doughnut',
+    data:{
+      labels:['Villa','Duplex'],
+      datasets:[{data:[villa||0,duplex||0],backgroundColor:['rgba(212,175,55,.8)','rgba(96,165,250,.8)'],borderWidth:0}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}
+  });
+  document.getElementById('donut-legend').innerHTML=[
+    {label:'Villa',  n:villa,  c:'rgba(212,175,55,.8)'},
+    {label:'Duplex', n:duplex, c:'rgba(96,165,250,.8)'}
+  ].map(({label,n,c})=>`
+    <div class="donut-item">
+      <div class="donut-dot" style="background:${c}"></div>
+      <span style="color:var(--text-mid);flex:1">${label}</span>
+      <strong>${n}</strong>
+      <span style="color:var(--text-dim);margin-left:6px">${total?Math.round(n/total*100)+'%':'0%'}</span>
+    </div>`).join('');
+}
+
+/* ── Feed ── */
+function renderFeed(newIds=[]){
+  const recent = events.slice(0,80);
+  set('feed-meta', recent.length+' derniers événements');
+  const lbl = {page_view:'Page vue',plan_click:'Plan consulté',checkout_open:'Checkout ouvert',checkout_submit:'Checkout soumis'};
+  document.getElementById('feed-list').innerHTML = recent.length
+    ? recent.map(e=>`
+        <div class="feed-item${newIds.includes(e.id)?' feed-new':''}">
+          <div><span class="badge b-${e.event_type}">${lbl[e.event_type]||e.event_type}</span></div>
+          <div class="feed-plan">${e.plan_title||'—'}</div>
+          <div class="feed-type">${e.plan_type||'—'}</div>
+          <div class="feed-opt">${e.option_type||'—'}</div>
+          <div class="feed-time">${ago(e.created_at)}</div>
+        </div>`).join('')
+    : '<div class="feed-empty">Aucune activité sur cette période</div>';
+}
+
+/* ── Realtime ── */
+function subscribeRT(){
+  sb.channel('analytics-rt')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'analytics_events'}, payload=>{
+      events.unshift(payload.new);
+      if(events.length>3000) events.pop();
+      renderKPIs(); renderFunnel(); renderFeed([payload.new.id]);
+    })
+    .subscribe();
+}
+
+/* ── Helpers ── */
+function set(id,v){ const el=document.getElementById(id); if(el) el.textContent=v; }
+function fmt(n){ return n.toLocaleString('fr'); }
+function ago(iso){
+  const d=new Date(iso), now=new Date(), diff=Math.round((now-d)/1000);
+  if(diff<60) return 'il y a '+diff+'s';
+  if(diff<3600) return 'il y a '+Math.round(diff/60)+'min';
+  if(diff<86400) return d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+}
+</script>
+</body>
+</html>

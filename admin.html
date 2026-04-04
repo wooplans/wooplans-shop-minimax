@@ -1,0 +1,2205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WooPlans Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,300..600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --brun:#1a1208;--brun-moyen:#3d2b14;--terre:#8B5E3C;--terre-clair:#C4894F;
+  --or:#D4A853;--or-pale:#F0D49A;--creme:#FAF7F2;--creme-2:#F3EDE3;--creme-3:#E8DFD0;
+  --gris-fonce:#4A4540;--gris:#7A736C;--gris-clair:#C5BDB4;--blanc:#FFFFFF;
+  --vert:#2D6A4F;--vert-bg:#EAF4EE;--rouge:#C0392B;--rouge-bg:#FDEDEC;
+  --orange:#E67E22;--orange-bg:#FEF6E8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--creme);color:var(--brun);min-height:100vh}
+
+/* ── AUTH ── */
+#auth-screen{position:fixed;inset:0;z-index:999;background:var(--brun);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px}
+#auth-screen.hidden{display:none}
+.auth-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--or);letter-spacing:.12em}
+.auth-box{background:var(--brun-moyen);padding:32px;width:min(400px,90vw);text-align:center}
+.auth-box label{display:block;color:var(--or-pale);font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.auth-box input{width:100%;padding:12px 16px;border:1px solid var(--terre);background:var(--brun);color:var(--blanc);font-size:1rem;text-align:center;letter-spacing:.1em}
+.auth-box input:focus{outline:none;border-color:var(--or)}
+.auth-box button{margin-top:16px;width:100%;padding:13px;background:var(--or);color:var(--brun);font-weight:700;border:none;cursor:pointer;font-size:.9rem;letter-spacing:.06em;text-transform:uppercase}
+.auth-box button:hover{background:var(--or-pale)}
+.auth-err{color:var(--rouge);font-size:.82rem;margin-top:10px;min-height:20px}
+
+/* ── NAV ── */
+.nav{background:var(--brun);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--or);letter-spacing:.1em}
+.nav-logo small{font-family:'DM Sans',sans-serif;font-size:.7rem;color:var(--gris-clair);letter-spacing:.15em;text-transform:uppercase;margin-left:12px}
+.nav-link{color:var(--creme-3);text-decoration:none;font-size:.82rem;letter-spacing:.06em}
+.nav-link:hover{color:var(--or)}
+
+/* ── ANALYTICS PLANS ── */
+.analytics{padding:24px 32px;}
+.analytics-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--terre);margin-bottom:16px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--blanc);padding:16px;text-align:center}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600;color:var(--brun)}
+.kpi-label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gris);margin-top:4px}
+.kpi-sub{font-size:.7rem;color:var(--gris-clair);margin-top:2px}
+.kpi.alert .kpi-val{color:var(--orange)}
+.price-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* ── ANALYTICS VISITEURS ── */
+.av-section{background:#0f0f0f;margin:0 0 0 0;padding:24px 32px}
+.av-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.av-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#d4af37;display:flex;align-items:center;gap:10px}
+.av-live{display:flex;align-items:center;gap:6px;font-size:.75rem;color:rgba(255,255,255,.45)}
+.av-live-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:av-pulse 2s infinite;flex-shrink:0}
+@keyframes av-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.av-tabs{display:flex;gap:3px;background:#1a1a1a;padding:3px}
+.av-tab{padding:6px 14px;font-size:.75rem;cursor:pointer;color:rgba(255,255,255,.45);letter-spacing:.05em;border:none;background:transparent;text-transform:uppercase;font-family:'DM Sans',sans-serif}
+.av-tab.active{background:#d4af37;color:#1a1200;font-weight:700}
+.av-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.av-kpi{background:#1a1a1a;border:1px solid rgba(255,255,255,.06);padding:16px 14px}
+.av-kpi.gold{border-color:rgba(212,175,55,.3);background:rgba(212,175,55,.08)}
+.av-kpi-label{font-size:.68rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.av-kpi-val{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:#f0f0f0;line-height:1}
+.av-kpi.gold .av-kpi-val{color:#d4af37}
+.av-kpi-sub{font-size:.68rem;color:rgba(255,255,255,.3);margin-top:4px}
+.av-row2{display:grid;grid-template-columns:1fr 280px;gap:14px;margin-bottom:14px}
+.av-row3{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.av-card{background:#1a1a1a;border:1px solid rgba(255,255,255,.06);padding:18px}
+.av-card-title{font-size:.68rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.av-card-title span{color:rgba(255,255,255,.6)}
+.av-funnel{display:flex;flex-direction:column;gap:10px}
+.av-funnel-step{display:flex;align-items:center;gap:10px}
+.av-funnel-lbl{width:130px;font-size:.76rem;color:rgba(255,255,255,.6);flex-shrink:0}
+.av-funnel-wrap{flex:1;background:#111;height:26px;overflow:hidden}
+.av-funnel-bar{height:100%;transition:width .8s ease;display:flex;align-items:center;padding-left:8px;font-size:.72rem;font-weight:700;color:#1a1200;white-space:nowrap}
+.av-funnel-n{width:44px;text-align:right;font-size:.82rem;font-weight:600;color:#f0f0f0;flex-shrink:0}
+.av-funnel-pct{width:40px;text-align:right;font-size:.72rem;color:rgba(255,255,255,.35);flex-shrink:0}
+.av-donut-wrap{height:160px;display:flex;align-items:center;justify-content:center}
+.av-donut-legend{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.av-donut-item{display:flex;align-items:center;gap:8px;font-size:.76rem}
+.av-donut-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.av-chart-wrap{height:200px;position:relative}
+.av-feed{max-height:280px;overflow-y:auto}
+.av-feed::-webkit-scrollbar{width:3px}
+.av-feed::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1)}
+.av-feed-item{display:grid;grid-template-columns:100px 1fr 70px 110px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.75rem}
+.av-feed-item:last-child{border:none}
+.av-badge{display:inline-block;padding:2px 7px;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.av-badge-page_view{background:rgba(96,165,250,.15);color:#60a5fa}
+.av-badge-plan_click{background:rgba(212,175,55,.15);color:#d4af37}
+.av-badge-checkout_open{background:rgba(167,139,250,.15);color:#a78bfa}
+.av-badge-checkout_submit{background:rgba(34,197,94,.15);color:#22c55e}
+.av-badge-voir_exemple{background:rgba(251,146,60,.15);color:#fb923c}
+.av-feed-plan{color:rgba(255,255,255,.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av-feed-time{color:rgba(255,255,255,.3);text-align:right}
+@keyframes av-fadein{from{background:rgba(212,175,55,.12)}to{background:transparent}}
+.av-feed-new{animation:av-fadein .6s ease}
+@media(max-width:1100px){.av-kpis{grid-template-columns:repeat(3,1fr)}.av-row2,.av-row3{grid-template-columns:1fr}}
+@media(max-width:640px){.av-section{padding:16px}.av-kpis{grid-template-columns:1fr 1fr}.av-feed-item{grid-template-columns:90px 1fr 90px}}
+.price-box{background:var(--blanc);padding:16px}
+.price-box-title{font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gris-fonce);margin-bottom:10px}
+.price-line{display:flex;justify-content:space-between;font-size:.85rem;padding:4px 0;color:var(--brun)}
+.price-line span:last-child{font-weight:600;color:var(--terre)}
+
+/* ── TOOLBAR ── */
+.toolbar{padding:24px 32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.btn-add{background:var(--or);color:var(--brun);font-weight:700;font-size:.85rem;letter-spacing:.05em;text-transform:uppercase;padding:12px 24px;border:none;cursor:pointer;display:flex;align-items:center;gap:8px}
+.btn-add:hover{background:var(--or-pale)}
+.btn-add svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.5;fill:none}
+.search-wrap{flex:1;max-width:400px;position:relative}
+.search-wrap input{width:100%;padding:11px 16px 11px 40px;border:1px solid var(--creme-3);background:var(--blanc);font-size:.9rem;color:var(--brun)}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--gris);stroke-width:2;fill:none}
+.stats{margin-left:auto;font-size:.82rem;color:var(--gris)}
+
+/* ── FILTERS ── */
+.filters{padding:0 32px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.filters select,.filters input[type=number]{padding:9px 14px;border:1px solid var(--creme-3);background:var(--blanc);font-size:.82rem;color:var(--brun);font-family:inherit;min-width:130px}
+.filters select:focus,.filters input:focus{outline:none;border-color:var(--or)}
+.btn-reset{background:var(--creme-2);color:var(--gris-fonce);font-size:.78rem;font-weight:600;padding:9px 16px;border:none;cursor:pointer;letter-spacing:.04em}
+.btn-reset:hover{background:var(--creme-3)}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;padding:0 32px 40px}
+.card{background:var(--blanc);overflow:hidden;position:relative;transition:box-shadow .2s}
+.card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.card.selected{outline:3px solid var(--or);outline-offset:-3px}
+.card-select{position:absolute;top:10px;left:10px;z-index:2;width:22px;height:22px;accent-color:var(--or);cursor:pointer}
+.card-img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--creme-2)}
+.card-body{padding:16px}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--brun);margin-bottom:4px}
+.card-meta{font-size:.78rem;color:var(--gris);margin-bottom:8px}
+.card-badges{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.card-badge{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px}
+.badge-villa{background:var(--vert-bg);color:var(--vert)}
+.badge-duplex{background:var(--rouge-bg);color:var(--terre)}
+.badge-online{background:var(--vert-bg);color:var(--vert)}
+.badge-offline{background:var(--rouge-bg);color:var(--rouge)}
+.card-price{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--terre)}
+.card-price small{font-size:.7rem;color:var(--gris)}
+.card-actions{display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--creme-2);padding-top:12px}
+.btn-edit,.btn-del,.btn-toggle{flex:1;padding:8px;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-edit{background:var(--creme-2);color:var(--brun)}
+.btn-edit:hover{background:var(--creme-3)}
+.btn-del{background:transparent;color:var(--rouge);border:1px solid var(--rouge-bg)}
+.btn-del:hover{background:var(--rouge-bg)}
+.btn-toggle{background:transparent;color:var(--gris);border:1px solid var(--creme-3)}
+.btn-toggle:hover{background:var(--creme-2)}
+.btn-edit svg,.btn-del svg,.btn-toggle svg,.btn-link svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none}
+.btn-link{flex:1;padding:8px;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;background:transparent;color:var(--vert);border:1px solid #b7e0c9}
+.btn-link:hover{background:#eafaf1}
+.btn-link.copied{color:#fff;background:var(--vert);border-color:var(--vert)}
+.empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--gris);font-size:.95rem}
+
+/* ── BULK BAR ── */
+.bulk-bar{position:fixed;bottom:0;left:0;right:0;background:var(--brun);padding:16px 32px;display:none;align-items:center;gap:16px;z-index:150;flex-wrap:wrap}
+.bulk-bar.show{display:flex}
+.bulk-count{color:var(--or);font-size:.85rem;font-weight:600;white-space:nowrap}
+.bulk-sep{width:1px;height:28px;background:var(--brun-moyen)}
+.bulk-group{display:flex;align-items:center;gap:8px}
+.bulk-group label{color:var(--gris-clair);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.bulk-group select,.bulk-group input{padding:8px 12px;border:1px solid var(--terre);background:var(--brun-moyen);color:var(--blanc);font-size:.85rem;font-family:inherit}
+.bulk-group input{width:100px;text-align:center}
+.btn-bulk-apply{background:var(--or);color:var(--brun);font-weight:700;font-size:.8rem;padding:10px 20px;border:none;cursor:pointer;letter-spacing:.04em;text-transform:uppercase}
+.btn-bulk-apply:hover{background:var(--or-pale)}
+.btn-bulk-cancel{background:transparent;color:var(--gris-clair);font-size:.8rem;padding:10px 16px;border:1px solid var(--gris);cursor:pointer}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal-backdrop{position:fixed;inset:0;background:rgba(10,8,5,.65);backdrop-filter:blur(4px)}
+.modal{position:relative;z-index:1;background:var(--blanc);width:min(720px,100%);margin:40px auto;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-head{background:var(--brun);padding:20px 28px;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--or)}
+.modal-close{background:transparent;border:1px solid rgba(255,255,255,.2);width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--blanc)}
+.modal-close:hover{background:rgba(255,255,255,.1)}
+.modal-close svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none}
+.modal-body{padding:28px;max-height:75vh;overflow-y:auto}
+.form-section{margin-bottom:24px}
+.form-section-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--terre);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--creme-2)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-row.col-3{grid-template-columns:1fr 1fr 1fr}
+.form-row.col-1{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gris-fonce)}
+.form-group input,.form-group select,.form-group textarea{padding:10px 14px;border:1px solid var(--creme-3);background:var(--creme);font-size:.9rem;color:var(--brun);font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--or);background:var(--blanc)}
+.form-group textarea{min-height:80px;resize:vertical;line-height:1.6}
+
+/* ── STEPPER ── */
+.stepper{display:flex;align-items:stretch}
+.stepper input{flex:1;text-align:center;border-left:none;border-right:none;font-weight:600;font-size:.95rem}
+.step-btn{width:42px;background:var(--creme-2);border:1px solid var(--creme-3);cursor:pointer;font-size:1.1rem;font-weight:700;color:var(--brun);display:flex;align-items:center;justify-content:center;transition:background .15s}
+.step-btn:hover{background:var(--or-pale)}
+.step-btn:first-child{border-right:none}
+.step-btn:last-child{border-left:none}
+
+/* ── TOGGLE ── */
+.toggle-wrap{position:relative}
+.toggle-wrap input{display:none}
+.toggle-label{display:flex;width:140px;height:36px;background:var(--rouge-bg);border:1px solid var(--creme-3);cursor:pointer;position:relative;overflow:hidden;transition:background .2s}
+.toggle-label::after{content:'';position:absolute;width:50%;height:100%;background:var(--rouge);top:0;left:0;transition:left .2s;z-index:1}
+.toggle-wrap input:checked+.toggle-label{background:var(--vert-bg)}
+.toggle-wrap input:checked+.toggle-label::after{left:50%;background:var(--vert)}
+.toggle-on,.toggle-off{flex:1;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;position:relative;z-index:2;transition:color .2s}
+.toggle-off{color:var(--blanc)}
+.toggle-on{color:var(--gris)}
+.toggle-wrap input:checked+.toggle-label .toggle-on{color:var(--blanc)}
+.toggle-wrap input:checked+.toggle-label .toggle-off{color:var(--gris)}
+
+/* ── DROP ZONE ── */
+.drop-zone{border:2px dashed var(--creme-3);padding:28px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:var(--creme)}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--or);background:rgba(212,168,83,.08)}
+.drop-zone p{color:var(--gris);font-size:.85rem;margin-bottom:6px}
+.drop-zone small{color:var(--gris-clair);font-size:.75rem}
+.previews{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.preview-item{position:relative;width:80px;height:80px;cursor:grab;user-select:none}
+.preview-item img{width:100%;height:100%;object-fit:cover;border:2px solid var(--creme-2);display:block;pointer-events:none}
+.preview-item .remove-img{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--rouge);color:var(--blanc);border:none;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2}
+.preview-item .img-badge{position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,.62);color:#fff;font-size:.6rem;font-weight:700;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;z-index:2;letter-spacing:.03em}
+.preview-item.dragging{opacity:.35;cursor:grabbing}
+.preview-item.drag-over-left{box-shadow:-3px 0 0 0 var(--or);border-radius:0}
+.preview-item.drag-over-right{box-shadow:3px 0 0 0 var(--or);border-radius:0}
+.previews-hint{font-size:.72rem;color:var(--gris-clair);margin-top:6px}
+
+/* ── UPLOAD PROGRESS ── */
+.upload-progress{padding:16px 28px;display:none;border-top:1px solid var(--creme-2)}
+.upload-progress.show{display:block}
+.upload-progress-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--gris-fonce);margin-bottom:8px}
+.upload-progress-label strong{color:var(--brun);font-weight:600}
+.upload-progress-track{background:var(--creme-2);height:6px;border-radius:3px;overflow:hidden}
+.upload-progress-bar{height:100%;background:var(--or);width:0%;transition:width .15s ease;border-radius:3px}
+.upload-progress-files{font-size:.72rem;color:var(--gris);margin-top:6px}
+
+/* ── SUBMIT ── */
+.modal-foot{padding:16px 28px 28px;display:flex;gap:12px;justify-content:flex-end}
+.btn-save{background:var(--or);color:var(--brun);font-weight:700;font-size:.85rem;letter-spacing:.05em;text-transform:uppercase;padding:13px 32px;border:none;cursor:pointer}
+.btn-save:hover{background:var(--or-pale)}
+.btn-save:disabled{opacity:.5;cursor:not-allowed}
+.btn-cancel{background:var(--creme-2);color:var(--gris-fonce);font-weight:600;font-size:.85rem;padding:13px 24px;border:none;cursor:pointer}
+.file-current{display:flex;align-items:center;gap:10px;font-size:.8rem;color:var(--gris);margin-top:6px;flex-wrap:wrap}
+.file-current a{color:var(--terre);text-decoration:none}
+.file-current a:hover{text-decoration:underline}
+.btn-del-file{background:none;border:1px solid var(--rouge);color:var(--rouge);font-size:.72rem;font-weight:600;padding:3px 9px;cursor:pointer;border-radius:2px;white-space:nowrap}
+.btn-del-file:hover{background:var(--rouge);color:#fff}
+.btn-cancel:hover{background:var(--creme-3)}
+
+/* ── CONFIRM ── */
+.confirm-overlay{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.confirm-overlay.open{display:flex}
+.confirm-box{position:relative;z-index:1;background:var(--blanc);padding:32px;width:min(420px,90vw);text-align:center}
+.confirm-box h3{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--brun);margin-bottom:12px}
+.confirm-box p{font-size:.9rem;color:var(--gris);margin-bottom:24px}
+.confirm-btns{display:flex;gap:12px;justify-content:center}
+.btn-confirm-del{background:var(--rouge);color:var(--blanc);font-weight:700;font-size:.82rem;padding:11px 28px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
+.btn-confirm-cancel{background:var(--creme-2);color:var(--gris-fonce);font-weight:600;font-size:.82rem;padding:11px 28px;border:none;cursor:pointer}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--brun);color:var(--or);padding:14px 28px;font-size:.85rem;z-index:400;transition:transform .3s ease;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.spinner{width:18px;height:18px;border:2px solid var(--creme-3);border-top-color:var(--or);border-radius:50%;animation:spin .6s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── AI PREFILL ── */
+.ai-banner{border:1.5px dashed var(--or);background:var(--orange-bg);padding:16px 20px;margin-bottom:8px;border-radius:3px}
+.ai-banner-head{display:flex;align-items:center;gap:9px;font-weight:600;font-size:.92rem;color:var(--brun);margin-bottom:5px}
+.ai-banner-head svg{width:18px;height:18px;flex-shrink:0;fill:var(--or);stroke:none}
+.ai-banner-desc{font-size:.79rem;color:var(--gris-fonce);line-height:1.5;margin-bottom:12px}
+.ai-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ai-file-input{flex:1;min-width:0;font-size:.82rem;padding:7px 8px;border:1.5px solid var(--creme-3);background:var(--blanc);color:var(--brun);cursor:pointer}
+.ai-file-input::-webkit-file-upload-button{background:var(--creme-2);border:none;padding:5px 10px;font-size:.78rem;cursor:pointer;color:var(--brun);margin-right:10px}
+.btn-ai{background:var(--brun);color:var(--or);border:none;padding:9px 18px;font-size:.84rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:background .2s;flex-shrink:0}
+.btn-ai:hover{background:var(--terre)}
+.btn-ai:disabled{opacity:.5;cursor:not-allowed}
+.btn-ai svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.ai-status{font-size:.8rem;padding:8px 12px;margin-top:10px;border-radius:2px;display:none;align-items:center;gap:7px}
+.ai-status.loading{display:flex;background:#EFF6FF;color:#1D4ED8}
+.ai-status.success{display:flex;background:var(--vert-bg);color:var(--vert);font-weight:500}
+.ai-status.error{display:flex;background:#FEF2F2;color:#DC2626}
+.ai-spin{width:14px;height:14px;border:2px solid #BFDBFE;border-top-color:#1D4ED8;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+
+@media(max-width:600px){
+  .toolbar,.filters,.analytics{padding-left:16px;padding-right:16px}
+  .grid{padding:0 16px 24px;grid-template-columns:1fr}
+  .form-row,.form-row.col-3{grid-template-columns:1fr}
+  .modal-body{padding:20px}
+  .nav{padding:12px 16px}
+  .kpi-row{grid-template-columns:repeat(3,1fr)}
+  .price-row{grid-template-columns:1fr}
+  .bulk-bar{flex-direction:column;align-items:stretch;gap:10px}
+}
+
+/* ── ADMIN TABS ── */
+.admin-tabs{display:none;background:var(--brun-moyen);padding:0 32px;border-bottom:2px solid var(--terre);gap:0}
+.admin-tabs.show{display:flex}
+.admin-tab{padding:14px 24px;font-size:.82rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border:none;background:transparent;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s;display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif}
+.admin-tab:hover{color:var(--or-pale)}
+.admin-tab.active{color:var(--or);border-bottom-color:var(--or)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* ── PDF CONSTRUCTOR ── */
+.pdf-con{padding:32px;max-width:960px;margin:0 auto}
+.pdf-con-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--brun);margin-bottom:6px}
+.pdf-con-sub{font-size:.85rem;color:var(--gris);margin-bottom:28px}
+.pdf-step{background:var(--blanc);margin-bottom:20px;border:1px solid var(--creme-2)}
+.pdf-step-head{background:var(--brun);color:var(--or);padding:14px 20px;font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.pdf-step-num{width:22px;height:22px;border-radius:50%;background:var(--or);color:var(--brun);font-size:.72rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pdf-step-body{padding:22px}
+.pdf-api-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.pdf-api-input{flex:1;padding:10px 14px;border:1.5px solid var(--creme-3);background:var(--creme);font-size:.9rem;color:var(--brun);font-family:inherit;min-width:0}
+.pdf-api-input:focus{outline:none;border-color:var(--or);background:var(--blanc)}
+.pdf-api-saved{font-size:.75rem;color:var(--vert);background:var(--vert-bg);padding:4px 10px;border-radius:2px;display:none}
+.pdf-drop{border:2px dashed var(--creme-3);padding:28px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:var(--creme)}
+.pdf-drop:hover,.pdf-drop.dragover{border-color:var(--or);background:rgba(212,168,83,.08)}
+.pdf-drop p{color:var(--gris);font-size:.88rem;margin-bottom:4px}
+.pdf-drop small{font-size:.75rem;color:var(--gris-clair)}
+.pdf-files{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.pdf-file{position:relative;width:90px;flex-shrink:0}
+.pdf-file img{width:90px;height:72px;object-fit:cover;border:2px solid var(--creme-2);display:block}
+.pdf-file-name{font-size:.64rem;color:var(--gris-fonce);text-align:center;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pdf-file select{width:90px;font-size:.62rem;padding:3px 4px;border:1px solid var(--creme-3);background:var(--blanc);color:var(--brun);margin-top:3px;font-family:inherit}
+.pdf-file .remove-img{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--rouge);color:#fff;border:none;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center;border-radius:50%;z-index:2}
+.btn-analyze{background:var(--brun);color:var(--or);border:2px solid var(--or);padding:12px 28px;font-size:.88rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:9px;transition:background .2s;margin-top:16px;font-family:inherit}
+.btn-analyze:hover{background:var(--terre)}
+.btn-analyze:disabled{opacity:.5;cursor:not-allowed}
+.pdf-ai-status{font-size:.82rem;padding:10px 14px;margin-top:12px;display:none;align-items:center;gap:8px;border-radius:2px}
+.pdf-ai-status.loading{display:flex;background:#EFF6FF;color:#1D4ED8}
+.pdf-ai-status.success{display:flex;background:var(--vert-bg);color:var(--vert)}
+.pdf-ai-status.error{display:flex;background:#FEF2F2;color:#DC2626}
+.pdf-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pdf-meta-grid.col3{grid-template-columns:1fr 1fr 1fr}
+.pdf-fg{display:flex;flex-direction:column;gap:5px}
+.pdf-fg label{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gris-fonce)}
+.pdf-fg input,.pdf-fg select,.pdf-fg textarea{padding:9px 13px;border:1px solid var(--creme-3);background:var(--creme);font-size:.88rem;color:var(--brun);font-family:inherit}
+.pdf-fg input:focus,.pdf-fg select:focus,.pdf-fg textarea:focus{outline:none;border-color:var(--or);background:var(--blanc)}
+.pdf-fg textarea{min-height:70px;resize:vertical;line-height:1.6}
+.pdf-devis-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:10px}
+.pdf-devis-table th{background:var(--brun);color:var(--or-pale);padding:8px 12px;text-align:left;font-weight:500}
+.pdf-devis-table td{padding:7px 12px;border-bottom:1px solid var(--creme-2)}
+.pdf-devis-table td input{width:100%;border:none;background:transparent;font-size:.82rem;color:var(--brun);font-family:inherit;padding:2px 4px}
+.pdf-devis-table td input:focus{outline:1px solid var(--or);background:var(--blanc)}
+.pdf-devis-table tr:nth-child(even) td{background:var(--creme)}
+.pdf-devis-table tr.row-sub td{background:var(--brun-moyen);color:#fff}
+.pdf-devis-table tr.row-sub td input{color:#fff}
+.pdf-devis-table tr.row-total td{background:var(--brun);color:var(--or);font-weight:700}
+.pdf-devis-table tr.row-total td input{color:var(--or);font-weight:700}
+.btn-add-row{background:var(--creme-2);border:1px dashed var(--creme-3);color:var(--gris-fonce);font-size:.78rem;padding:6px 14px;cursor:pointer;margin-top:8px}
+.btn-add-row:hover{background:var(--creme-3)}
+.pdf-actions{display:flex;gap:12px;justify-content:flex-end;padding:20px 0 0;flex-wrap:wrap}
+.btn-preview{background:var(--creme-2);color:var(--brun);border:1px solid var(--creme-3);font-weight:600;font-size:.85rem;padding:12px 24px;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;font-family:inherit;display:flex;align-items:center;gap:8px}
+.btn-preview:hover{background:var(--creme-3)}
+.btn-dl-pdf{background:var(--or);color:var(--brun);border:none;font-weight:700;font-size:.85rem;padding:12px 28px;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;font-family:inherit;display:flex;align-items:center;gap:8px}
+.btn-dl-pdf:hover{background:var(--or-pale)}
+.btn-dl-pdf:disabled,.btn-preview:disabled{opacity:.5;cursor:not-allowed}
+.pdf-preview-frame{width:100%;height:600px;border:2px solid var(--creme-3);margin-top:16px;background:#fff}
+@media(max-width:600px){.admin-tabs{padding:0 16px}.pdf-con{padding:16px}.pdf-meta-grid,.pdf-meta-grid.col3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-logo">WooPlans</div>
+  <div class="auth-box">
+    <label>Mot de passe admin</label>
+    <input type="text" id="auth-pw" placeholder="Entrez le mot de passe" autofocus autocomplete="off">
+    <button onclick="tryAuth()">Connexion</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div><span class="nav-logo">WooPlans <small>Admin Dashboard</small></span></div>
+  <a href="index.html" class="nav-link" target="_blank">Voir le catalogue &rarr;</a>
+</nav>
+
+<!-- ADMIN TABS -->
+<div class="admin-tabs" id="admin-tabs">
+  <button class="admin-tab active" id="tab-btn-plans" onclick="switchTab('plans')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Plans
+  </button>
+  <button class="admin-tab" id="tab-btn-pdf" onclick="switchTab('pdf')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Constructeur PDF
+  </button>
+  <button class="admin-tab" id="tab-btn-analytics" onclick="switchTab('analytics')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Analytics
+  </button>
+</div>
+
+<!-- TAB PLANS -->
+<div class="tab-pane active" id="tab-plans">
+
+<!-- ANALYTICS PLANS -->
+<div class="analytics" id="analytics">
+  <div class="analytics-title">Catalogue — Résumé</div>
+  <div class="kpi-row" id="kpi-row"></div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="btn-add" onclick="openModal()">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Nouveau plan
+  </button>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="search" placeholder="Rechercher un plan..." oninput="applyFilters()">
+  </div>
+  <div class="stats" id="stats"></div>
+  <button class="btn-add" id="btn-sync" onclick="syncStaticPlans()" style="background:var(--or);color:var(--brun);margin-left:auto" title="Met à jour les données statiques et pousse sur GitHub → Netlify redéploie">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    Sync Static
+  </button>
+  <button onclick="document.getElementById('gh-token-bar').style.display=document.getElementById('gh-token-bar').style.display==='none'?'flex':'none'" style="background:transparent;border:1.5px solid var(--creme-3);color:var(--gris);padding:6px 10px;cursor:pointer;display:flex;align-items:center" title="Configurer le token GitHub">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  </button>
+</div>
+<!-- GitHub token config bar -->
+<div id="gh-token-bar" style="display:none;align-items:center;gap:10px;padding:10px 20px;background:var(--creme-2);border-bottom:1px solid var(--creme-3);flex-wrap:wrap">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--gris)" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+  <span style="font-size:.82rem;color:var(--gris);white-space:nowrap">GitHub Token (scope <code>repo</code>) :</span>
+  <input type="password" id="gh-token-input" class="pdf-api-input" placeholder="ghp_xxxxxxxxxxxx" style="flex:1;min-width:200px;max-width:360px;font-size:.84rem;padding:7px 12px">
+  <button class="btn-ai" onclick="ghSaveToken()" style="padding:7px 16px;font-size:.82rem">Sauvegarder</button>
+  <span id="gh-token-saved" style="font-size:.75rem;color:var(--vert);background:var(--vert-bg);padding:4px 10px;display:none">✓ Token sauvegardé</span>
+  <a href="https://github.com/settings/tokens/new?scopes=repo&description=WooPlans+Sync" target="_blank" style="font-size:.75rem;color:var(--terre);margin-left:auto">Générer un token GitHub →</a>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <select id="fil-type" onchange="applyFilters()">
+    <option value="">Tous les types</option>
+    <option value="villa">Villa</option>
+    <option value="duplex">Duplex</option>
+  </select>
+  <select id="fil-status" onchange="applyFilters()">
+    <option value="">Tous les statuts</option>
+    <option value="online">En ligne</option>
+    <option value="offline">Hors ligne</option>
+  </select>
+  <input type="number" id="fil-min" placeholder="Prix min (FCFA)" oninput="applyFilters()" style="width:130px">
+  <input type="number" id="fil-max" placeholder="Prix max (FCFA)" oninput="applyFilters()" style="width:130px">
+  <button class="btn-reset" onclick="resetFilters()">Reinitialiser</button>
+</div>
+
+<!-- GRID -->
+<div class="grid" id="grid"></div>
+
+</div><!-- /tab-plans -->
+
+<!-- TAB PDF -->
+<div class="tab-pane" id="tab-pdf">
+<div class="pdf-con">
+  <h2 class="pdf-con-title">Constructeur de Plan PDF</h2>
+  <p class="pdf-con-sub">Chargez les images de votre plan, laissez l'IA extraire les données, puis générez un PDF professionnel prêt à envoyer.</p>
+
+  <!-- STEP 1 : Clé API -->
+  <div class="pdf-step">
+    <div class="pdf-step-head"><div class="pdf-step-num">1</div>Clé API Claude</div>
+    <div class="pdf-step-body">
+      <p style="font-size:.84rem;color:var(--gris);margin-bottom:12px">Votre clé API Anthropic est stockée localement dans votre navigateur (jamais envoyée à un serveur).</p>
+      <div class="pdf-api-row">
+        <input type="password" id="pdf-api-key" class="pdf-api-input" placeholder="sk-ant-api03-...">
+        <button class="btn-ai" onclick="pdfSaveKey()" style="flex-shrink:0">Sauvegarder</button>
+        <span class="pdf-api-saved" id="pdf-key-saved">✓ Clé sauvegardée</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 : Fichiers -->
+  <div class="pdf-step">
+    <div class="pdf-step-head"><div class="pdf-step-num">2</div>Images du plan</div>
+    <div class="pdf-step-body">
+      <div class="pdf-drop" id="pdf-drop" onclick="document.getElementById('pdf-file-input').click()">
+        <p>Glissez toutes les images du plan ici ou cliquez pour parcourir</p>
+        <small>Cover, implantation, RDC, étage, rendus 3D — JPG/PNG — assignez les rôles via les menus déroulants</small>
+        <input type="file" id="pdf-file-input" multiple accept="image/*" style="display:none" onchange="pdfHandleFiles(this.files)">
+      </div>
+      <div class="pdf-files" id="pdf-files"></div>
+
+      <button class="btn-analyze" id="pdf-analyze-btn" onclick="pdfAnalyze()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        Analyser avec Claude
+      </button>
+      <div class="pdf-ai-status" id="pdf-ai-status"></div>
+    </div>
+  </div>
+
+  <!-- STEP 3 : Métadonnées -->
+  <div class="pdf-step">
+    <div class="pdf-step-head"><div class="pdf-step-num">3</div>Données du plan</div>
+    <div class="pdf-step-body">
+      <div class="pdf-meta-grid" style="margin-bottom:14px">
+        <div class="pdf-fg"><label>Titre du plan *</label><input type="text" id="pm-title" placeholder="Duplex D4-034"></div>
+        <div class="pdf-fg"><label>Type</label>
+          <select id="pm-type"><option value="duplex">Duplex</option><option value="villa">Villa</option></select>
+        </div>
+      </div>
+      <div class="pdf-meta-grid col3" style="margin-bottom:14px">
+        <div class="pdf-fg"><label>Surface (m²)</label><input type="text" id="pm-area" placeholder="142"></div>
+        <div class="pdf-fg"><label>Dimensions</label><input type="text" id="pm-dims" placeholder="10m × 9m"></div>
+        <div class="pdf-fg"><label>Niveaux</label><input type="number" id="pm-floors" min="1" value="2"></div>
+      </div>
+      <div class="pdf-meta-grid col3" style="margin-bottom:14px">
+        <div class="pdf-fg"><label>Chambres</label><input type="number" id="pm-beds" min="0"></div>
+        <div class="pdf-fg"><label>Salles de bain</label><input type="number" id="pm-baths" min="0"></div>
+        <div class="pdf-fg"><label>Sous-titre</label><input type="text" id="pm-sub" placeholder="Plan d'Architecture & Devis"></div>
+      </div>
+      <div class="pdf-fg" style="margin-bottom:14px">
+        <label>Description (optionnel)</label>
+        <textarea id="pm-desc" placeholder="Bref descriptif du plan..."></textarea>
+      </div>
+
+      <!-- Devis -->
+      <div style="margin-top:20px">
+        <div style="font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gris-fonce);margin-bottom:10px">Devis estimatif</div>
+        <table class="pdf-devis-table" id="pdf-devis-table">
+          <thead><tr><th>Désignation</th><th>Unité</th><th>Qté</th><th>P.U (FCFA)</th><th>Total (FCFA)</th><th style="width:30px"></th></tr></thead>
+          <tbody id="pdf-devis-body"></tbody>
+        </table>
+        <button class="btn-add-row" onclick="pdfAddDevisRow()">+ Ajouter une ligne</button>
+        <button class="btn-add-row" onclick="pdfAddSubtotalRow()" style="margin-left:8px">+ Sous-total</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="pdf-actions">
+    <button class="btn-preview" id="pdf-prev-btn" onclick="pdfPreview()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Aperçu
+    </button>
+    <button class="btn-dl-pdf" id="pdf-dl-btn" onclick="pdfDownload()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Télécharger PDF
+    </button>
+  </div>
+  <iframe id="pdf-preview-iframe" class="pdf-preview-frame" style="display:none"></iframe>
+</div>
+</div><!-- /tab-pdf -->
+
+<!-- TAB ANALYTICS -->
+<div class="tab-pane" id="tab-analytics">
+
+<!-- ANALYTICS VISITEURS -->
+<div class="av-section" id="av-section">
+  <div class="av-header">
+    <div class="av-title">
+      Analytics Visiteurs
+      <div class="av-live"><div class="av-live-dot"></div>Live</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="av-tabs">
+        <button class="av-tab active" data-p="today" onclick="avSetPeriod(this)">Aujourd'hui</button>
+        <button class="av-tab" data-p="7d" onclick="avSetPeriod(this)">7 jours</button>
+        <button class="av-tab" data-p="30d" onclick="avSetPeriod(this)">30 jours</button>
+      </div>
+      <span style="font-size:.72rem;color:rgba(255,255,255,.3)" id="av-refresh-time"></span>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="av-kpis">
+    <div class="av-kpi"><div class="av-kpi-label">Visiteurs uniques</div><div class="av-kpi-val" id="av-visitors">—</div><div class="av-kpi-sub">IDs distincts</div></div>
+    <div class="av-kpi"><div class="av-kpi-label">Pages vues</div><div class="av-kpi-val" id="av-pageviews">—</div><div class="av-kpi-sub">page_view</div></div>
+    <div class="av-kpi"><div class="av-kpi-label">Plans consultés</div><div class="av-kpi-val" id="av-clicks">—</div><div class="av-kpi-sub">fiches ouvertes</div></div>
+    <div class="av-kpi"><div class="av-kpi-label">Exemples vus</div><div class="av-kpi-val" id="av-exemples">—</div><div class="av-kpi-sub">clics "Voir exemple"</div></div>
+    <div class="av-kpi gold"><div class="av-kpi-label">Checkouts ouverts</div><div class="av-kpi-val" id="av-checkouts">—</div><div class="av-kpi-sub">taux : <span id="av-rate">—</span></div></div>
+  </div>
+
+  <!-- Funnel + Donut -->
+  <div class="av-row2">
+    <div class="av-card">
+      <div class="av-card-title">Tunnel de conversion</div>
+      <div class="av-funnel">
+        <div class="av-funnel-step"><div class="av-funnel-lbl">Page vue</div><div class="av-funnel-wrap"><div class="av-funnel-bar" id="avfb-pv" style="width:100%;background:#60a5fa"></div></div><div class="av-funnel-n" id="avfc-pv">—</div><div class="av-funnel-pct">100%</div></div>
+        <div class="av-funnel-step"><div class="av-funnel-lbl">Plan consulté</div><div class="av-funnel-wrap"><div class="av-funnel-bar" id="avfb-pc" style="width:0%;background:#d4af37"></div></div><div class="av-funnel-n" id="avfc-pc">—</div><div class="av-funnel-pct" id="avfp-pc">—</div></div>
+        <div class="av-funnel-step"><div class="av-funnel-lbl">Exemple vu</div><div class="av-funnel-wrap"><div class="av-funnel-bar" id="avfb-ve" style="width:0%;background:#fb923c"></div></div><div class="av-funnel-n" id="avfc-ve">—</div><div class="av-funnel-pct" id="avfp-ve">—</div></div>
+        <div class="av-funnel-step"><div class="av-funnel-lbl">Checkout ouvert</div><div class="av-funnel-wrap"><div class="av-funnel-bar" id="avfb-co" style="width:0%;background:#a78bfa"></div></div><div class="av-funnel-n" id="avfc-co">—</div><div class="av-funnel-pct" id="avfp-co">—</div></div>
+        <div class="av-funnel-step"><div class="av-funnel-lbl">Checkout soumis</div><div class="av-funnel-wrap"><div class="av-funnel-bar" id="avfb-cs" style="width:0%;background:#22c55e"></div></div><div class="av-funnel-n" id="avfc-cs">—</div><div class="av-funnel-pct" id="avfp-cs">—</div></div>
+      </div>
+    </div>
+    <div class="av-card">
+      <div class="av-card-title">Villa vs Duplex <span id="av-type-sub"></span></div>
+      <div class="av-donut-wrap"><canvas id="av-donut"></canvas></div>
+      <div class="av-donut-legend" id="av-donut-legend"></div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="av-row3">
+    <div class="av-card">
+      <div class="av-card-title">Évolution dans le temps</div>
+      <div class="av-chart-wrap"><canvas id="av-timeline"></canvas></div>
+    </div>
+    <div class="av-card">
+      <div class="av-card-title">Top plans consultés</div>
+      <div class="av-chart-wrap"><canvas id="av-plans"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Feed -->
+  <div class="av-card">
+    <div class="av-card-title">Activité en temps réel <span id="av-feed-count"></span></div>
+    <div class="av-feed" id="av-feed"><div style="color:rgba(255,255,255,.3);font-size:.8rem;padding:16px 0;text-align:center">Chargement…</div></div>
+  </div>
+</div>
+
+</div><!-- /tab-analytics -->
+
+<!-- BULK BAR -->
+<div class="bulk-bar" id="bulk-bar">
+  <span class="bulk-count" id="bulk-count">0 selectionnes</span>
+  <div class="bulk-sep"></div>
+  <div class="bulk-group">
+    <label>Mode</label>
+    <select id="bulk-mode">
+      <option value="set">Fixer a</option>
+      <option value="adjust">Ajuster de</option>
+    </select>
+  </div>
+  <div class="bulk-group">
+    <label>Basique</label>
+    <input type="text" id="bulk-basic" placeholder="—">
+  </div>
+  <div class="bulk-group">
+    <label>Complet</label>
+    <input type="text" id="bulk-complete" placeholder="—">
+  </div>
+  <button class="btn-bulk-apply" onclick="applyBulk()">Appliquer</button>
+  <button class="btn-bulk-cancel" onclick="clearSelection()">Annuler</button>
+</div>
+
+<!-- FORM MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-backdrop" onclick="closeModal()"></div>
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-title">Nouveau plan</span>
+      <button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="plan-form" onsubmit="savePlan(event)">
+        <input type="hidden" id="f-id">
+
+        <!-- IA PRÉ-REMPLISSAGE -->
+        <div class="ai-banner" id="ai-banner">
+          <div class="ai-banner-head">
+            <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+            Pré-remplir avec l'IA
+          </div>
+          <p class="ai-banner-desc">Chargez le PDF du plan — l'IA extrait automatiquement les données (titre, surface, chambres, pièces, description…). Vous pouvez tout modifier avant d'enregistrer.</p>
+          <div class="ai-row">
+            <input type="file" id="ai-pdf-input" accept=".pdf" class="ai-file-input">
+            <button type="button" class="btn-ai" id="ai-btn" onclick="aiPrefill()">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Analyser
+            </button>
+          </div>
+          <div class="ai-status" id="ai-status"></div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Informations generales</div>
+          <div class="form-row">
+            <div class="form-group"><label>Titre *</label><input type="text" id="f-title" required placeholder="Villa V3-020"></div>
+            <div class="form-group"><label>Type *</label>
+              <select id="f-type" required><option value="villa">Villa</option><option value="duplex">Duplex</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Sous-titre</label><input type="text" id="f-subtitle" placeholder="Villa plain-pied - 114 m2 - 3 chambres"></div>
+            <div class="form-group">
+              <label>Statut</label>
+              <div class="toggle-wrap">
+                <input type="checkbox" id="f-status" checked>
+                <label for="f-status" class="toggle-label">
+                  <span class="toggle-off">Hors ligne</span>
+                  <span class="toggle-on">En ligne</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-row col-3">
+            <div class="form-group"><label>Surface</label><input type="text" id="f-area" placeholder="114 m2"></div>
+            <div class="form-group"><label>Chambres</label><input type="number" id="f-beds" min="0"></div>
+            <div class="form-group"><label>Salles de bain</label><input type="number" id="f-baths" min="0"></div>
+          </div>
+          <div class="form-row col-3">
+            <div class="form-group"><label>Niveaux</label><input type="number" id="f-floors" min="1" value="1"></div>
+            <div class="form-group">
+              <label>Terrain recommandé</label>
+              <select id="f-terrain">
+                <option value="">— Non précisé —</option>
+                <option value="à partir de 200 m²">à partir de 200 m²</option>
+                <option value="à partir de 300 m²">à partir de 300 m²</option>
+                <option value="à partir de 400 m²">à partir de 400 m²</option>
+                <option value="à partir de 500 m²">à partir de 500 m²</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Note (0-5)</label><input type="number" id="f-rating" min="0" max="5" step="0.1" value="4.8"></div>
+          </div>
+        </div>
+
+        <!-- Prix avec steppers -->
+        <div class="form-section">
+          <div class="form-section-title">Tarification</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Prix Basique (FCFA) * <small style="color:var(--gris-clair)">pas de 5 000</small></label>
+              <div class="stepper">
+                <button type="button" class="step-btn" onclick="stepPrice('f-priceBasic',-1)">-</button>
+                <input type="text" id="f-priceBasic" required value="29 000">
+                <button type="button" class="step-btn" onclick="stepPrice('f-priceBasic',1)">+</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Prix Complet (FCFA) * <small style="color:var(--gris-clair)">pas de 50 000</small></label>
+              <div class="stepper">
+                <button type="button" class="step-btn" onclick="stepPrice('f-priceComplete',-1)">-</button>
+                <input type="text" id="f-priceComplete" required value="99 000">
+                <button type="button" class="step-btn" onclick="stepPrice('f-priceComplete',1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Description et caracteristiques</div>
+          <div class="form-row col-1">
+            <div class="form-group"><label>Description</label><textarea id="f-desc" placeholder="Description du plan..."></textarea></div>
+          </div>
+          <div class="form-row col-1">
+            <div class="form-group"><label>Caracteristiques (1 par ligne)</label><textarea id="f-features" placeholder="Salon/Sejour 18,67 m2&#10;Cuisine 8,73 m2&#10;3 chambres"></textarea></div>
+          </div>
+          <!-- Extras masqués mais présents pour compatibilité Supabase -->
+          <textarea id="f-extrasBasic" style="display:none"></textarea>
+          <textarea id="f-extrasComplete" style="display:none"></textarea>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Images</div>
+          <div class="drop-zone" id="drop-zone" onclick="document.getElementById('f-images').click()">
+            <p>Glissez vos images ici ou cliquez pour parcourir</p>
+            <small>JPG, PNG, WEBP — max 5 MB par image</small>
+            <input type="file" id="f-images" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
+          </div>
+          <div class="previews" id="img-previews"></div>
+          <div class="previews-hint" id="img-drag-hint" style="display:none">⠿ Glissez les images pour réordonner — la première sera la miniature principale</div>
+        </div>
+
+        <!-- Chariow IDs masqués mais présents pour compatibilité -->
+        <input type="hidden" id="f-chariow-basic">
+        <input type="hidden" id="f-chariow-complete">
+
+        <div class="form-section">
+          <div class="form-section-title">Fichiers et media</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>PDF du plan (optionnel)</label>
+              <div id="current-pdf" class="file-current"></div>
+              <input type="file" id="f-pdf" accept=".pdf" style="padding:8px">
+            </div>
+            <div class="form-group">
+              <label>Vidéo (optionnel)</label>
+              <div id="current-video" class="file-current"></div>
+              <input type="file" id="f-video" accept="video/*" style="padding:8px">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="upload-progress" id="upload-progress">
+      <div class="upload-progress-label">
+        <strong id="up-label">Upload en cours...</strong>
+        <span id="up-pct">0%</span>
+      </div>
+      <div class="upload-progress-track">
+        <div class="upload-progress-bar" id="up-bar"></div>
+      </div>
+      <div class="upload-progress-files" id="up-files"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" id="btn-cancel" onclick="closeModal()">Annuler</button>
+      <button class="btn-save" id="btn-save" onclick="document.getElementById('plan-form').requestSubmit()">
+        <span id="save-txt">Enregistrer</span>
+        <div class="spinner" id="save-spin"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="modal-backdrop" onclick="closeConfirm()"></div>
+  <div class="confirm-box">
+    <h3>Supprimer ce plan ?</h3>
+    <p id="confirm-msg">Cette action est irreversible.</p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">Annuler</button>
+      <button class="btn-confirm-del" id="btn-confirm-del">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://xlmwzvkqjnoijdldzrol.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhsbXd6dmtxam5vaWpkbGR6cm9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMTAzMjAsImV4cCI6MjA4OTY4NjMyMH0.cQcRRHaaMiht2Tq9CB9l4_XN8-SOjixxhHFJDjytze4';
+const ADMIN_PW='wooplans.9999';
+const _supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+// ── BUNNY CDN ──
+const BUNNY_STORAGE_ZONE='mes-videos-storage';
+const BUNNY_API_KEY='59ce304f-8b15-4549-a924-1a552a3b5f5f2b1cc6ba-aba2-4fc7-a1c2-26e9ca468e96';
+const BUNNY_STORAGE_URL='https://storage.bunnycdn.com/'+BUNNY_STORAGE_ZONE;
+const BUNNY_CDN_URL='https://wooplans.b-cdn.net';
+
+
+const DEFAULTS={villa:{basic:'29 000',complete:'99 000'},duplex:{basic:'29 000',complete:'199 000'}};
+
+// ── HELPERS ──
+function slugifyPlan(title){
+  return (title||'plan')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-+|-+$/g,'')
+    .slice(0,60)||'plan';
+}
+
+async function compressImage(file, maxWidth=1920, quality=0.82){
+  // Ignore non-images ou fichiers trop petits (<80KB)
+  if(!file.type.startsWith('image/')||file.size<81920) return file;
+  return new Promise(resolve=>{
+    const img=new Image();
+    const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      let w=img.width, h=img.height;
+      if(w>maxWidth){h=Math.round(h*maxWidth/w);w=maxWidth;}
+      const c=document.createElement('canvas');
+      c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      c.toBlob(blob=>{
+        const compressed=new File([blob],file.name.replace(/\.[^.]+$/,'.jpg'),{type:'image/jpeg'});
+        // On garde l'original si la compression l'alourdit
+        resolve(compressed.size<file.size?compressed:file);
+      },'image/jpeg',quality);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);resolve(file);};
+    img.src=url;
+  });
+}
+
+let plans=[];
+// imageItems = [{src: string (objectURL ou URL existante), file: File|null}]
+let imageItems=[];
+let existingVideoUrl=null;
+let existingPdfUrl=null;
+let deletePdf=false;
+let deleteVideo=false;
+let selectedIds=new Set();
+let _dragSrcIdx=null;
+
+function renderCurrentPdf(){
+  const el=document.getElementById('current-pdf');
+  if(!el) return;
+  if(existingPdfUrl && !deletePdf){
+    el.innerHTML='<a href="'+existingPdfUrl+'" target="_blank">📄 Voir le PDF actuel</a>'
+      +'<button class="btn-del-file" onclick="removePdf()">✕ Supprimer</button>';
+  } else if(deletePdf){
+    el.innerHTML='<span style="color:var(--rouge)">PDF supprimé — sauvegardez pour confirmer</span>'
+      +'<button class="btn-del-file" onclick="restorePdf()" style="border-color:var(--vert);color:var(--vert)">Annuler</button>';
+  } else {
+    el.innerHTML='';
+  }
+}
+function removePdf(){deletePdf=true;renderCurrentPdf();}
+function restorePdf(){deletePdf=false;renderCurrentPdf();}
+
+function renderCurrentVideo(){
+  const el=document.getElementById('current-video');
+  if(!el) return;
+  if(existingVideoUrl && !deleteVideo){
+    el.innerHTML='<a href="'+existingVideoUrl+'" target="_blank">🎬 Voir la vidéo actuelle</a>'
+      +'<button class="btn-del-file" onclick="removeVideo()">✕ Supprimer</button>';
+  } else if(deleteVideo){
+    el.innerHTML='<span style="color:var(--rouge)">Vidéo supprimée — sauvegardez pour confirmer</span>'
+      +'<button class="btn-del-file" onclick="restoreVideo()" style="border-color:var(--vert);color:var(--vert)">Annuler</button>';
+  } else {
+    el.innerHTML='';
+  }
+}
+function removeVideo(){deleteVideo=true;renderCurrentVideo();}
+function restoreVideo(){deleteVideo=false;renderCurrentVideo();}
+
+// ── AUTH ──
+function tryAuth(){
+  if(document.getElementById('auth-pw').value===ADMIN_PW){
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('admin-tabs').classList.add('show');
+    switchTab('plans');
+    fetchPlans();
+    avSubscribeRealtime();
+    setInterval(avLoadData,60000);
+  } else {
+    document.getElementById('auth-err').textContent='Mot de passe incorrect';
+  }
+}
+document.getElementById('auth-pw').addEventListener('keydown',e=>{if(e.key==='Enter')tryAuth()});
+
+// ── ANALYTICS VISITEURS ──
+let avPeriod='today', avEvents=[], avTimelineChart=null, avPlansChart=null, avDonutChart=null;
+
+function avSetPeriod(btn){
+  document.querySelectorAll('.av-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  avPeriod=btn.dataset.p;
+  avLoadData();
+}
+function avPeriodStart(){
+  const now=new Date();
+  if(avPeriod==='today'){const d=new Date(now);d.setHours(0,0,0,0);return d;}
+  if(avPeriod==='7d'){const d=new Date(now);d.setDate(d.getDate()-7);return d;}
+  const d=new Date(now);d.setDate(d.getDate()-30);return d;
+}
+async function avLoadData(){
+  const since=avPeriodStart().toISOString();
+  const{data,error}=await _supabase.from('analytics_events').select('*').gte('created_at',since).order('created_at',{ascending:false}).limit(2000);
+  if(error){console.error('av:',error);return;}
+  avEvents=data||[];
+  avRenderAll();
+  const el=document.getElementById('av-refresh-time');
+  if(el)el.textContent='Mis à jour '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+}
+function avRenderAll(){avRenderKPIs();avRenderFunnel();avRenderTimeline();avRenderTopPlans();avRenderDonut();avRenderFeed();}
+
+function avRenderKPIs(){
+  const ev=avEvents;
+  const visitors=new Set(ev.map(e=>e.visitor_id).filter(Boolean)).size;
+  const pv=ev.filter(e=>e.event_type==='page_view').length;
+  const pc=ev.filter(e=>e.event_type==='plan_click').length;
+  const ve=ev.filter(e=>e.event_type==='voir_exemple').length;
+  const co=ev.filter(e=>e.event_type==='checkout_open').length;
+  const rate=visitors>0?Math.round(co/visitors*100)+'%':'0%';
+  avSet('av-visitors',visitors);avSet('av-pageviews',pv);avSet('av-clicks',pc);avSet('av-exemples',ve);avSet('av-checkouts',co);avSet('av-rate',rate);
+}
+function avRenderFunnel(){
+  const pv=avEvents.filter(e=>e.event_type==='page_view').length;
+  const pc=avEvents.filter(e=>e.event_type==='plan_click').length;
+  const ve=avEvents.filter(e=>e.event_type==='voir_exemple').length;
+  const co=avEvents.filter(e=>e.event_type==='checkout_open').length;
+  const cs=avEvents.filter(e=>e.event_type==='checkout_submit').length;
+  const top=Math.max(pv,1);
+  const pct=(n,d)=>d>0?Math.round(n/d*100)+'%':'0%';
+  avSet('avfc-pv',pv);avSet('avfc-pc',pc);avSet('avfc-ve',ve);avSet('avfc-co',co);avSet('avfc-cs',cs);
+  avSet('avfp-pc',pct(pc,pv));avSet('avfp-ve',pct(ve,pv));avSet('avfp-co',pct(co,pv));avSet('avfp-cs',pct(cs,pv));
+  const bars={pv:100,pc:pc/top*100,ve:ve/top*100,co:co/top*100,cs:cs/top*100};
+  Object.entries(bars).forEach(([k,w])=>{const b=document.getElementById('avfb-'+k);if(b)b.style.width=w+'%';});
+}
+function avRenderTimeline(){
+  const isToday=avPeriod==='today';
+  const gk=e=>{const d=new Date(e.created_at);return isToday?d.getHours()+'h':d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});};
+  const now=new Date();
+  const labels=[];
+  if(isToday){for(let h=0;h<=now.getHours();h++)labels.push(h+'h');}
+  else{const days=avPeriod==='7d'?7:30;for(let i=days-1;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);labels.push(d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}));}}
+  const types=['page_view','plan_click','voir_exemple','checkout_open','checkout_submit'];
+  const colors=['rgba(96,165,250,.8)','rgba(212,175,55,.8)','rgba(251,146,60,.8)','rgba(167,139,250,.8)','rgba(34,197,94,.8)'];
+  const names=['Page vue','Plan consulté','Exemple vu','Checkout ouvert','Checkout soumis'];
+  const datasets=types.map((t,i)=>{
+    const counts={};
+    avEvents.filter(e=>e.event_type===t).forEach(e=>{const k=gk(e);counts[k]=(counts[k]||0)+1;});
+    return{label:names[i],data:labels.map(l=>counts[l]||0),borderColor:colors[i],backgroundColor:colors[i].replace('.8)','.1)'),borderWidth:1.5,tension:.35,fill:true,pointRadius:2};
+  });
+  if(avTimelineChart)avTimelineChart.destroy();
+  const ctx=document.getElementById('av-timeline').getContext('2d');
+  avTimelineChart=new Chart(ctx,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'rgba(255,255,255,.45)',boxWidth:10,font:{size:10}}}},scales:{x:{ticks:{color:'rgba(255,255,255,.3)',maxTicksLimit:8,font:{size:9}},grid:{color:'rgba(255,255,255,.04)'}},y:{ticks:{color:'rgba(255,255,255,.3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'},beginAtZero:true}}}});
+}
+function avRenderTopPlans(){
+  const counts={};
+  avEvents.filter(e=>e.event_type==='plan_click'&&e.plan_title).forEach(e=>{counts[e.plan_title]=(counts[e.plan_title]||0)+1;});
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(avPlansChart)avPlansChart.destroy();
+  const ctx=document.getElementById('av-plans').getContext('2d');
+  avPlansChart=new Chart(ctx,{type:'bar',data:{labels:sorted.map(([t])=>t.length>16?t.slice(0,16)+'…':t),datasets:[{label:'Clics',data:sorted.map(([,v])=>v),backgroundColor:'rgba(212,175,55,.7)',borderColor:'rgba(212,175,55,1)',borderWidth:1,borderRadius:2}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'rgba(255,255,255,.3)',font:{size:9}},grid:{color:'rgba(255,255,255,.04)'},beginAtZero:true},y:{ticks:{color:'rgba(255,255,255,.5)',font:{size:10}},grid:{display:false}}}}});
+}
+function avRenderDonut(){
+  const villa=avEvents.filter(e=>e.event_type==='plan_click'&&e.plan_type==='villa').length;
+  const duplex=avEvents.filter(e=>e.event_type==='plan_click'&&e.plan_type==='duplex').length;
+  const total=villa+duplex;
+  avSet('av-type-sub',total?total+' clics':'');
+  if(avDonutChart)avDonutChart.destroy();
+  const ctx=document.getElementById('av-donut').getContext('2d');
+  avDonutChart=new Chart(ctx,{type:'doughnut',data:{labels:['Villa','Duplex'],datasets:[{data:[villa,duplex],backgroundColor:['rgba(212,175,55,.8)','rgba(96,165,250,.8)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}});
+  const lg=document.getElementById('av-donut-legend');
+  if(lg)lg.innerHTML=[{label:'Villa',count:villa,color:'rgba(212,175,55,.8)'},{label:'Duplex',count:duplex,color:'rgba(96,165,250,.8)'}].map(({label,count,color})=>`<div class="av-donut-item"><div class="av-donut-dot" style="background:${color}"></div><span style="color:rgba(255,255,255,.6);flex:1">${label}</span><strong style="color:#f0f0f0">${count}</strong><span style="color:rgba(255,255,255,.3);margin-left:6px">${total?Math.round(count/total*100)+'%':'0%'}</span></div>`).join('');
+}
+function avRenderFeed(newIds=[]){
+  const labels={page_view:'Page vue',plan_click:'Plan consulté',checkout_open:'Checkout ouvert',checkout_submit:'Checkout soumis',voir_exemple:'Exemple vu'};
+  const recent=avEvents.slice(0,60);
+  avSet('av-feed-count',recent.length+' derniers');
+  const feed=document.getElementById('av-feed');
+  if(!feed)return;
+  feed.innerHTML=recent.map(e=>`
+    <div class="av-feed-item${newIds.includes(e.id)?' av-feed-new':''}">
+      <div><span class="av-badge av-badge-${e.event_type}">${labels[e.event_type]||e.event_type}</span></div>
+      <div class="av-feed-plan">${e.plan_title||'—'}</div>
+      <div style="color:rgba(255,255,255,.35)">${e.option_type||'—'}</div>
+      <div class="av-feed-time">${avFmtTime(e.created_at)}</div>
+    </div>`).join('')||'<div style="color:rgba(255,255,255,.3);font-size:.8rem;padding:16px 0;text-align:center">Aucune activité sur cette période</div>';
+}
+function avSubscribeRealtime(){
+  _supabase.channel('admin-analytics-live')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'analytics_events'},payload=>{
+      avEvents.unshift(payload.new);
+      avEvents=avEvents.slice(0,2000);
+      avRenderKPIs();avRenderFunnel();avRenderFeed([payload.new.id]);
+    }).subscribe();
+}
+function avSet(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+function avFmtTime(iso){
+  const d=new Date(iso),now=new Date(),diff=Math.round((now-d)/1000);
+  if(diff<60)return 'il y a '+diff+'s';
+  if(diff<3600)return 'il y a '+Math.round(diff/60)+'min';
+  if(diff<86400)return d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+}
+
+// ── FETCH ──
+async function fetchPlans(){
+  const{data,error}=await _supabase.from('plans').select('*').order('created_at',{ascending:false});
+  if(error){console.error(error);showToast('Erreur chargement');return}
+  plans=data||[];
+  applyFilters();
+  renderAnalytics();
+  document.getElementById('stats').textContent=plans.length+' plan'+(plans.length>1?'s':'');
+}
+
+// ── GITHUB TOKEN ──
+function ghSaveToken(){
+  const v=document.getElementById('gh-token-input').value.trim();
+  if(!v){showToast('Entrez un token GitHub');return;}
+  localStorage.setItem('wp_github_token',v);
+  const s=document.getElementById('gh-token-saved');
+  s.style.display='inline-block';
+  setTimeout(()=>s.style.display='none',3000);
+  showToast('Token GitHub sauvegardé');
+}
+function ghInitToken(){
+  const k=localStorage.getItem('wp_github_token');
+  if(k) document.getElementById('gh-token-input').value=k;
+}
+
+// Pousse les données statiques directement sur GitHub → Netlify redéploie
+async function syncStaticPlans(){
+  const btn=document.getElementById('btn-sync');
+  const token=localStorage.getItem('wp_github_token');
+  if(!token){
+    document.getElementById('gh-token-bar').style.display='flex';
+    showToast('⚠️ Configure d\'abord ton token GitHub (bouton ⚙)');
+    return;
+  }
+  btn.disabled=true;
+  const steps=[{t:'Récupération des plans…',i:'⬇️'},{t:'Lecture du fichier GitHub…',i:'📄'},{t:'Mise à jour du fichier…',i:'✏️'},{t:'Push GitHub…',i:'🚀'}];
+  let step=0;
+  const setLabel=()=>{btn.textContent=steps[step].i+' '+steps[step].t;};
+  setLabel();
+  try {
+    // 1. Fetch plans Supabase
+    const{data,error}=await _supabase.from('plans').select('*').eq('status','online').order('created_at',{ascending:true});
+    if(error) throw error;
+    const json=JSON.stringify(data,null,0);
+    const newBlock=`<script id="plans-static">\n/* Sync ${new Date().toISOString().slice(0,10)} — ${data.length} plans */\nwindow.__PLANS_STATIC__=${json};\n<\/script>`;
+
+    // 2. Lire le fichier actuel sur GitHub
+    step=1; setLabel();
+    const REPO='wooplans/wooplans-catalog';
+    const FILE='wooplans-catalogue.html';
+    const BRANCH='master';
+    const ghHeaders={'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'};
+    const fileRes=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}?ref=${BRANCH}`,{headers:ghHeaders});
+    if(!fileRes.ok) throw new Error('GitHub '+fileRes.status+' — vérifie le token (scope repo)');
+    const fileData=await fileRes.json();
+    const currentContent=decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
+
+    // 3. Injecter / remplacer le bloc statique
+    step=2; setLabel();
+    let newContent;
+    if(currentContent.includes('<script id="plans-static">')){
+      newContent=currentContent.replace(/<script id="plans-static">[\s\S]*?<\/script>/,newBlock);
+    } else {
+      newContent=currentContent.replace('</head>',newBlock+'\n</head>');
+    }
+
+    // 4. Pusher sur GitHub
+    step=3; setLabel();
+    const pushRes=await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`,{
+      method:'PUT',
+      headers:{...ghHeaders,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        message:`sync: données statiques (${data.length} plans) — ${new Date().toISOString().slice(0,10)}`,
+        content:btoa(unescape(encodeURIComponent(newContent))),
+        sha:fileData.sha,
+        branch:BRANCH
+      })
+    });
+    if(!pushRes.ok){const e=await pushRes.json();throw new Error(e.message||'Push échoué');}
+    showToast('🚀 Pushé ! Netlify redéploie dans ~60s ('+data.length+' plans)');
+    // Purger aussi le cache CF
+    await fetch('/api/purge-cache',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('wp_purge_secret')||'')},body:JSON.stringify({tags:['plans']})}).catch(()=>{});
+  } catch(e) {
+    showToast('❌ Erreur : '+e.message);
+  } finally {
+    btn.disabled=false; btn.textContent='Sync Static';
+  }
+}
+
+// ── ANALYTICS ──
+function renderAnalytics(){
+  const total=plans.length;
+  const villas=plans.filter(p=>p.type==='villa');
+  const duplex=plans.filter(p=>p.type==='duplex');
+  const online=plans.filter(p=>(p.status||'online')==='online');
+  const offline=plans.filter(p=>p.status==='offline');
+  const noImg=plans.filter(p=>!p.images||!p.images.length).length;
+  const noPdf=plans.filter(p=>!p.pdf_basic_url).length;
+
+  document.getElementById('kpi-row').innerHTML=`
+    <div class="kpi"><div class="kpi-val">${total}</div><div class="kpi-label">Total plans</div></div>
+    <div class="kpi"><div class="kpi-val">${villas.length}</div><div class="kpi-label">Villas</div></div>
+    <div class="kpi"><div class="kpi-val">${duplex.length}</div><div class="kpi-label">Duplex</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--vert)">${online.length}</div><div class="kpi-label">En ligne</div></div>
+    <div class="kpi"><div class="kpi-val" style="color:var(--rouge)">${offline.length}</div><div class="kpi-label">Hors ligne</div></div>
+    ${noImg?`<div class="kpi alert"><div class="kpi-val">${noImg}</div><div class="kpi-label">Sans image</div></div>`:''}
+    ${noPdf?`<div class="kpi alert"><div class="kpi-val">${noPdf}</div><div class="kpi-label">Sans PDF</div></div>`:''}
+  `;
+
+}
+
+// ── FILTERS ──
+function applyFilters(){
+  let list=plans;
+  const type=document.getElementById('fil-type').value;
+  const status=document.getElementById('fil-status').value;
+  const min=parseInt(document.getElementById('fil-min').value)||0;
+  const max=parseInt(document.getElementById('fil-max').value)||Infinity;
+  const q=document.getElementById('search').value.toLowerCase().trim();
+
+  if(type) list=list.filter(p=>p.type===type);
+  if(status) list=list.filter(p=>(p.status||'online')===status);
+  list=list.filter(p=>{
+    const price=parseInt(String(p.priceBasic||'0').replace(/\s/g,''));
+    return price>=min&&price<=max;
+  });
+  if(q) list=list.filter(p=>(p.title+' '+(p.subtitle||'')+' '+p.type).toLowerCase().includes(q));
+  renderGrid(list);
+}
+function resetFilters(){
+  document.getElementById('fil-type').value='';
+  document.getElementById('fil-status').value='';
+  document.getElementById('fil-min').value='';
+  document.getElementById('fil-max').value='';
+  document.getElementById('search').value='';
+  applyFilters();
+}
+
+// ── RENDER GRID ──
+function renderGrid(list){
+  const g=document.getElementById('grid');
+  if(!list.length){g.innerHTML='<div class="empty">Aucun plan trouve.</div>';return}
+  g.innerHTML=list.map(p=>{
+    const img=(p.images&&p.images.length)?p.images[0]:'';
+    const typeBadge=p.type==='villa'?'badge-villa':'badge-duplex';
+    const st=p.status||'online';
+    const stBadge=st==='online'?'badge-online':'badge-offline';
+    const stLabel=st==='online'?'En ligne':'Hors ligne';
+    const date=p.created_at?new Date(p.created_at).toLocaleDateString('fr-FR'):'';
+    const sel=selectedIds.has(p.id)?'selected':'';
+    const chk=selectedIds.has(p.id)?'checked':'';
+    return `<div class="card ${sel}" id="card-${p.id}">
+      <input type="checkbox" class="card-select" ${chk} onchange="toggleSelect('${p.id}',this)">
+      ${img?`<img class="card-img" src="${img}" alt="${p.title}" loading="lazy">`:`<div class="card-img" style="display:flex;align-items:center;justify-content:center;color:var(--gris-clair);font-size:.8rem">Pas d'image</div>`}
+      <div class="card-body">
+        <div class="card-badges">
+          <span class="card-badge ${typeBadge}">${p.type}</span>
+          <span class="card-badge ${stBadge}">${stLabel}</span>
+        </div>
+        <h3 class="card-title">${p.title}</h3>
+        <div class="card-meta">${p.area||''} &middot; ${p.beds||0} ch. &middot; ${p.baths||0} sdb &middot; ${date}</div>
+        <div class="card-price">${p.priceBasic||'—'} <small>FCFA</small></div>
+        <div class="card-actions">
+          <button class="btn-edit" onclick="editPlan('${p.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifier</button>
+          <button class="btn-toggle" onclick="toggleStatus('${p.id}')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>${st==='online'?'Desactiver':'Activer'}</button>
+          <button class="btn-del" onclick="confirmDelete('${p.id}','${(p.title||'').replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Suppr.</button>
+          <button class="btn-link" id="btnlink-${p.id}" onclick="copyCheckoutLink('${p.id}','${slugifyPlan(p.title)}',this)"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Lien</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── LIEN CHECKOUT DIRECT ──
+function copyCheckoutLink(id, slug, btn){
+  const url = 'https://shop.wooplans.com/plans/' + slug + '?checkout=1';
+  function onCopied(){
+    if(btn){ btn.classList.add('copied'); btn.innerHTML='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Copié !'; setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Lien'; }, 2000); }
+  }
+  if(navigator.clipboard){ navigator.clipboard.writeText(url).then(onCopied); }
+  else { var t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);onCopied(); }
+}
+
+// ── TOGGLE STATUS ──
+async function toggleStatus(id){
+  const p=plans.find(x=>x.id===id);
+  if(!p)return;
+  const newSt=(p.status||'online')==='online'?'offline':'online';
+  const{error}=await _supabase.from('plans').update({status:newSt}).eq('id',id);
+  if(error){showToast('Erreur');return}
+  showToast(newSt==='online'?'Plan mis en ligne':'Plan mis hors ligne');
+  await fetchPlans();
+}
+
+// ── SELECTION & BULK ──
+function toggleSelect(id,cb){
+  if(cb.checked) selectedIds.add(id); else selectedIds.delete(id);
+  const card=document.getElementById('card-'+id);
+  if(card) card.classList.toggle('selected',cb.checked);
+  renderBulkBar();
+}
+function clearSelection(){
+  selectedIds.clear();
+  document.querySelectorAll('.card-select').forEach(cb=>{cb.checked=false});
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('selected'));
+  renderBulkBar();
+}
+function renderBulkBar(){
+  const bar=document.getElementById('bulk-bar');
+  const n=selectedIds.size;
+  if(n>0){
+    bar.classList.add('show');
+    document.getElementById('bulk-count').textContent=n+' selectionne'+(n>1?'s':'');
+  } else {
+    bar.classList.remove('show');
+  }
+}
+async function applyBulk(){
+  const mode=document.getElementById('bulk-mode').value;
+  const rawB=document.getElementById('bulk-basic').value.trim();
+  const rawC=document.getElementById('bulk-complete').value.trim();
+  if(!rawB&&!rawC){showToast('Entrez au moins un prix');return}
+
+  const parseV=v=>parseInt(v.replace(/\s/g,''))||0;
+  let count=0;
+  for(const id of selectedIds){
+    const p=plans.find(x=>x.id===id);
+    if(!p)continue;
+    const upd={};
+    if(rawB){
+      const val=parseV(rawB);
+      if(mode==='set') upd.priceBasic=val.toLocaleString('fr-FR').replace(/,/g,' ');
+      else {
+        const cur=parseV(String(p.priceBasic||'0'));
+        upd.priceBasic=Math.max(0,cur+val).toLocaleString('fr-FR').replace(/,/g,' ');
+      }
+    }
+    if(rawC){
+      const val=parseV(rawC);
+      if(mode==='set') upd.priceComplete=val.toLocaleString('fr-FR').replace(/,/g,' ');
+      else {
+        const cur=parseV(String(p.priceComplete||'0'));
+        upd.priceComplete=Math.max(0,cur+val).toLocaleString('fr-FR').replace(/,/g,' ');
+      }
+    }
+    const{error}=await _supabase.from('plans').update(upd).eq('id',id);
+    if(!error) count++;
+  }
+  showToast(count+' plan'+(count>1?'s':'')+' mis a jour');
+  clearSelection();
+  document.getElementById('bulk-basic').value='';
+  document.getElementById('bulk-complete').value='';
+  await fetchPlans();
+}
+
+// ── AI PRÉ-REMPLISSAGE ──
+async function aiPrefill(){
+  const input=document.getElementById('ai-pdf-input');
+  const statusEl=document.getElementById('ai-status');
+  const btn=document.getElementById('ai-btn');
+
+  // Réinitialiser le statut
+  statusEl.className='ai-status';
+  statusEl.style.display='none';
+
+  if(!input.files.length){
+    statusEl.className='ai-status error';
+    statusEl.innerHTML='Veuillez sélectionner un fichier PDF.';
+    statusEl.style.display='flex';
+    return;
+  }
+  const file=input.files[0];
+  if(file.size>25*1024*1024){
+    statusEl.className='ai-status error';
+    statusEl.innerHTML='Fichier trop volumineux (max 25 Mo). Utilisez la version APS uniquement (sans devis).';
+    statusEl.style.display='flex';
+    return;
+  }
+
+  btn.disabled=true;
+  const isBig = file.size > 3*1024*1024;
+  statusEl.className='ai-status loading';
+  statusEl.innerHTML='<div class="ai-spin"></div>L\'IA analyse votre PDF… '+(isBig?'(30-45 secondes pour un gros fichier)':'(10-20 secondes)');
+  statusEl.style.display='flex';
+
+  try {
+    // Lire le PDF en base64
+    const base64=await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=e=>resolve(e.target.result.split(',')[1]);
+      reader.onerror=reject;
+      reader.readAsDataURL(file);
+    });
+
+    // Appel Edge Function avec timeout 50s
+    const controller=new AbortController();
+    const timeoutId=setTimeout(()=>controller.abort(),50000);
+
+    let res;
+    try {
+      res=await fetch(`${SUPABASE_URL}/functions/v1/ai-prefill`,{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+SUPABASE_ANON_KEY,
+        },
+        body:JSON.stringify({pdfBase64:base64}),
+        signal:controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    const json=await res.json();
+    if(!res.ok||json.error) throw new Error(json.error||'Erreur serveur '+res.status);
+    const d=json.data;
+
+    // Remplir les champs
+    if(d.title)    document.getElementById('f-title').value=d.title;
+    if(d.type)     document.getElementById('f-type').value=d.type;
+    if(d.subtitle) document.getElementById('f-subtitle').value=d.subtitle;
+    if(d.area)     document.getElementById('f-area').value=d.area;
+    if(d.beds!=null)   document.getElementById('f-beds').value=d.beds;
+    if(d.baths!=null)  document.getElementById('f-baths').value=d.baths;
+    if(d.floors!=null) document.getElementById('f-floors').value=d.floors;
+    if(d.terrain){
+      const tv='à partir de '+d.terrain+' m²';
+      const sel=document.getElementById('f-terrain');
+      const opt=Array.from(sel.options).find(o=>o.value===tv);
+      if(opt) sel.value=opt.value;
+    }
+    if(d.description) document.getElementById('f-desc').value=d.description;
+    if(d.features&&d.features.length) document.getElementById('f-features').value=d.features.join('\n');
+    if(d.extrasBasic&&d.extrasBasic.length) document.getElementById('f-extrasBasic').value=d.extrasBasic.join('\n');
+    if(d.extrasComplete&&d.extrasComplete.length) document.getElementById('f-extrasComplete').value=d.extrasComplete.join('\n');
+
+    // Déclencher les prix par défaut selon le type
+    document.getElementById('f-type').dispatchEvent(new Event('change'));
+
+    statusEl.className='ai-status success';
+    statusEl.innerHTML='✓ Formulaire pré-rempli — vérifiez et modifiez avant d\'enregistrer.';
+
+  } catch(err){
+    statusEl.className='ai-status error';
+    const isTimeout = err.name==='AbortError';
+    statusEl.innerHTML=isTimeout
+      ? '⏱ Délai dépassé (50s). Le PDF est trop volumineux — essayez avec un fichier plus léger ou les premières pages seulement.'
+      : '❌ Erreur : '+err.message;
+  }
+
+  btn.disabled=false;
+}
+
+// ── PRICE STEPPER ──
+function stepPrice(fieldId,dir){
+  const input=document.getElementById(fieldId);
+  const current=parseInt(String(input.value).replace(/\s/g,''))||0;
+  const isBasic=fieldId.includes('Basic');
+  const step=isBasic?5000:50000;
+  const newVal=Math.max(0,current+dir*step);
+  input.value=newVal.toLocaleString('fr-FR').replace(/,/g,' ');
+}
+
+// ── TYPE CHANGE → DEFAULT PRICES ──
+document.getElementById('f-type').addEventListener('change',function(){
+  const d=DEFAULTS[this.value];
+  const bField=document.getElementById('f-priceBasic');
+  const cField=document.getElementById('f-priceComplete');
+  const allB=Object.values(DEFAULTS).map(x=>x.basic);
+  const allC=Object.values(DEFAULTS).map(x=>x.complete);
+  if(!bField.value.trim()||allB.includes(bField.value)) bField.value=d.basic;
+  if(!cField.value.trim()||allC.includes(cField.value)) cField.value=d.complete;
+});
+
+// ── MODAL ──
+function openModal(plan){
+  imageItems=[];
+  existingVideoUrl=null;
+  existingPdfUrl=null;
+  deletePdf=false;
+  deleteVideo=false;
+  document.getElementById('plan-form').reset();
+  document.getElementById('f-id').value='';
+  document.getElementById('f-rating').value='4.8';
+  document.getElementById('f-floors').value='1';
+  document.getElementById('f-status').checked=true;
+  document.getElementById('img-previews').innerHTML='';
+  document.getElementById('current-pdf').textContent='';
+  document.getElementById('current-video').innerHTML='';
+  // Set defaults
+  const d=DEFAULTS.villa;
+  document.getElementById('f-priceBasic').value=d.basic;
+  document.getElementById('f-priceComplete').value=d.complete;
+
+  if(plan){
+    document.getElementById('modal-title').textContent='Modifier : '+plan.title;
+    document.getElementById('f-id').value=plan.id;
+    document.getElementById('f-title').value=plan.title||'';
+    document.getElementById('f-type').value=plan.type||'villa';
+    document.getElementById('f-subtitle').value=plan.subtitle||'';
+    document.getElementById('f-status').checked=(plan.status||'online')==='online';
+    document.getElementById('f-area').value=plan.area||'';
+    document.getElementById('f-beds').value=plan.beds||'';
+    document.getElementById('f-baths').value=plan.baths||'';
+    document.getElementById('f-floors').value=plan.floors||1;
+    document.getElementById('f-terrain').value=plan.terrain||'';
+    document.getElementById('f-rating').value=plan.rating||4.8;
+    document.getElementById('f-priceBasic').value=plan.priceBasic||'';
+    document.getElementById('f-priceComplete').value=plan.priceComplete||'';
+    document.getElementById('f-desc').value=plan.desc||'';
+    document.getElementById('f-features').value=(plan.features||[]).join('\n');
+    document.getElementById('f-extrasBasic').value=(plan.extrasBasic||[]).join('\n');
+    document.getElementById('f-extrasComplete').value=(plan.extrasComplete||[]).join('\n');
+    document.getElementById('f-chariow-basic').value=plan.chariow_basic_id||'';
+    document.getElementById('f-chariow-complete').value=plan.chariow_complete_id||'';
+    if(plan.video_url){ existingVideoUrl=plan.video_url; }
+    renderCurrentVideo();
+    if(plan.pdf_basic_url){ existingPdfUrl=plan.pdf_basic_url; }
+    renderCurrentPdf();
+    imageItems=(plan.images||[]).map(url=>({src:url,file:null}));
+    renderImagePreviews();
+  } else {
+    document.getElementById('modal-title').textContent='Nouveau plan';
+  }
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  hideProgress();
+  document.getElementById('btn-cancel').disabled=false;
+}
+function editPlan(id){
+  const p=plans.find(x=>x.id===id);
+  if(p)openModal(p);
+}
+
+// ── IMAGES ──
+const dropZone=document.getElementById('drop-zone');
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('dragover')});
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('dragover');handleFiles(e.dataTransfer.files)});
+
+function handleFiles(fileList){
+  for(const f of fileList){
+    if(!f.type.startsWith('image/'))continue;
+    if(f.size>20*1024*1024){showToast('Image trop volumineuse (max 20 MB)');continue}
+    const src=URL.createObjectURL(f);
+    imageItems.push({src,file:f});
+  }
+  renderImagePreviews();
+}
+
+function renderImagePreviews(){
+  const c=document.getElementById('img-previews');
+  // Libérer les objectURLs avant de vider
+  c.querySelectorAll('img[data-blob]').forEach(img=>URL.revokeObjectURL(img.src));
+  c.innerHTML='';
+
+  if(imageItems.length===0) return;
+
+  // Hint
+  const hint=document.getElementById('img-drag-hint');
+  if(hint) hint.style.display=imageItems.length>1?'block':'none';
+
+  imageItems.forEach((item,i)=>{
+    const d=document.createElement('div');
+    d.className='preview-item';
+    d.draggable=true;
+    d.dataset.idx=i;
+
+    // Badge ordre
+    const badge=document.createElement('span');
+    badge.className='img-badge';
+    badge.textContent=i+1;
+
+    // Image
+    const img=document.createElement('img');
+    img.src=item.src;
+    if(item.file) img.dataset.blob='1';
+
+    // Bouton supprimer
+    const btn=document.createElement('button');
+    btn.className='remove-img';
+    btn.textContent='×';
+    btn.onclick=e=>{
+      e.stopPropagation();
+      if(!item.file && item.src.startsWith('blob:')) URL.revokeObjectURL(item.src);
+      imageItems.splice(i,1);
+      renderImagePreviews();
+    };
+
+    // Drag & Drop
+    d.addEventListener('dragstart',e=>{
+      _dragSrcIdx=i;
+      d.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+    });
+    d.addEventListener('dragend',()=>{
+      d.classList.remove('dragging');
+      c.querySelectorAll('.preview-item').forEach(el=>el.classList.remove('drag-over-left','drag-over-right'));
+      _dragSrcIdx=null;
+    });
+    d.addEventListener('dragover',e=>{
+      e.preventDefault();
+      if(_dragSrcIdx===null||_dragSrcIdx===i) return;
+      e.dataTransfer.dropEffect='move';
+      const rect=d.getBoundingClientRect();
+      const after=e.clientX>rect.left+rect.width/2;
+      d.classList.toggle('drag-over-left',!after);
+      d.classList.toggle('drag-over-right',after);
+    });
+    d.addEventListener('dragleave',()=>d.classList.remove('drag-over-left','drag-over-right'));
+    d.addEventListener('drop',e=>{
+      e.preventDefault();
+      if(_dragSrcIdx===null||_dragSrcIdx===i) return;
+      const rect=d.getBoundingClientRect();
+      const after=e.clientX>rect.left+rect.width/2;
+      const moved=imageItems.splice(_dragSrcIdx,1)[0];
+      const target=_dragSrcIdx<i?(after?i:i-1):(after?i+1:i);
+      imageItems.splice(target,0,moved);
+      renderImagePreviews();
+    });
+
+    d.appendChild(badge);d.appendChild(img);d.appendChild(btn);
+    c.appendChild(d);
+  });
+}
+
+// ── UPLOAD PROGRESS UI ──
+function setProgress(label, files, pct){
+  const el=document.getElementById('upload-progress');
+  el.classList.add('show');
+  document.getElementById('up-label').textContent=label;
+  document.getElementById('up-pct').textContent=Math.round(pct)+'%';
+  document.getElementById('up-bar').style.width=pct+'%';
+  if(files) document.getElementById('up-files').textContent=files;
+}
+function hideProgress(){
+  document.getElementById('upload-progress').classList.remove('show');
+  document.getElementById('up-bar').style.width='0%';
+}
+
+// ── UPLOAD VIA EDGE FUNCTION ──
+function uploadToBunnyXHR(file, path, onProgress){
+  return new Promise((resolve, reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('PUT', SUPABASE_URL+'/functions/v1/bunny-upload?path='+encodeURIComponent(path));
+    xhr.setRequestHeader('x-content-type', file.type||'application/octet-stream');
+    xhr.upload.onprogress=e=>{
+      if(e.lengthComputable && onProgress) onProgress(e.loaded/e.total);
+    };
+    xhr.onload=()=>{
+      if(xhr.status>=200&&xhr.status<300){
+        try{resolve(JSON.parse(xhr.responseText).url);}
+        catch(e){reject(new Error('Réponse invalide'));}
+      } else {
+        let detail='';
+        try{detail=JSON.parse(xhr.responseText).detail||'';}catch(e){}
+        reject(new Error('Erreur '+xhr.status+(detail?' — '+detail:'')));
+      }
+    };
+    xhr.onerror=()=>reject(new Error('Erreur réseau'));
+    xhr.send(file);
+  });
+}
+
+// ── UPLOAD (Bunny CDN via proxy) ──
+async function uploadImages(planSlug, stepOffset, totalSteps){
+  const urls=[];
+  const newItems=imageItems.filter(it=>it.file!==null);
+  const n=newItems.length;
+  // Compter les items à uploader pour la progression
+  let uploadIdx=0;
+  for(let i=0;i<imageItems.length;i++){
+    const item=imageItems[i];
+    if(item.file===null){
+      // Image existante → garder l'URL telle quelle
+      urls.push(item.src);
+    } else {
+      let file=item.file;
+      const fileLabel=`Image ${uploadIdx+1} / ${n} — ${file.name}`;
+      setProgress('Compression + upload des images...', fileLabel, ((stepOffset+uploadIdx)/totalSteps)*100);
+      file=await compressImage(file);
+      const path=`${planSlug}/images/${planSlug}-img-${uploadIdx+1}.jpg`;
+      try{
+        const url=await uploadToBunnyXHR(file, path, pct=>{
+          const overall=((stepOffset+uploadIdx+pct)/totalSteps)*100;
+          setProgress('Upload des images...', fileLabel+' — '+Math.round(pct*100)+'%', overall);
+        });
+        urls.push(url);
+      }catch(err){console.error(err);showToast('Erreur image '+(uploadIdx+1)+' : '+err.message);}
+      uploadIdx++;
+    }
+  }
+  return urls;
+}
+async function uploadPdf(planSlug, stepOffset, totalSteps){
+  const fi=document.getElementById('f-pdf');
+  if(!fi.files.length)return null;
+  const file=fi.files[0];
+  const path=`${planSlug}/pdfs/${planSlug}-plan.pdf`;
+  setProgress('Upload du PDF...', file.name, (stepOffset/totalSteps)*100);
+  try{
+    return await uploadToBunnyXHR(file, path, pct=>{
+      setProgress('Upload du PDF...', file.name+' — '+Math.round(pct*100)+'%', ((stepOffset+pct)/totalSteps)*100);
+    });
+  }catch(err){console.error(err);showToast('Erreur PDF : '+err.message);return null;}
+}
+async function uploadVideo(planSlug, stepOffset, totalSteps){
+  const fi=document.getElementById('f-video');
+  if(!fi.files.length)return null;
+  const file=fi.files[0];
+  const ext=file.name.split('.').pop().toLowerCase();
+  const path=`${planSlug}/videos/${planSlug}-video.${ext}`;
+  setProgress('Upload de la vidéo...', file.name, (stepOffset/totalSteps)*100);
+  try{
+    return await uploadToBunnyXHR(file, path, pct=>{
+      setProgress('Upload de la vidéo...', file.name+' — '+Math.round(pct*100)+'%', ((stepOffset+pct)/totalSteps)*100);
+    });
+  }catch(err){console.error(err);showToast('Erreur vidéo : '+err.message);return null;}
+}
+
+// ── SAVE ──
+async function savePlan(e){
+  e.preventDefault();
+  const btn=document.getElementById('btn-save');
+  const spin=document.getElementById('save-spin');
+  const txt=document.getElementById('save-txt');
+  btn.disabled=true;
+  document.getElementById('btn-cancel').disabled=true;
+  spin.style.display='inline-block';txt.textContent='Enregistrement...';
+
+  try{
+    const id=document.getElementById('f-id').value;
+    const isEdit=!!id;
+    const planId=isEdit?id:crypto.randomUUID();
+    const planTitle=document.getElementById('f-title').value.trim();
+    const planSlug=slugifyPlan(planTitle);
+
+    // Calculer le nombre total de steps pour la progression
+    const nImg=imageItems.filter(it=>it.file!==null).length;
+    const hasPdf=!!document.getElementById('f-pdf').files.length;
+    const hasVideo=!!document.getElementById('f-video').files.length;
+    const totalSteps=Math.max(nImg+(hasPdf?1:0)+(hasVideo?1:0)+1, 1);
+    let offset=0;
+
+    const imageUrls=await uploadImages(planSlug, offset, totalSteps);
+    offset+=nImg;
+    const pdfUrl=await uploadPdf(planSlug, offset, totalSteps);
+    if(hasPdf) offset+=1;
+    const videoUrl=await uploadVideo(planSlug, offset, totalSteps);
+    if(hasVideo) offset+=1;
+    setProgress('Enregistrement...', 'Sauvegarde dans la base de données', (offset/totalSteps)*100);
+    const toLines=v=>(v||'').split('\n').map(s=>s.trim()).filter(Boolean);
+
+    const planData={
+      type:document.getElementById('f-type').value,
+      title:document.getElementById('f-title').value.trim(),
+      subtitle:document.getElementById('f-subtitle').value.trim(),
+      status:document.getElementById('f-status').checked?'online':'offline',
+      area:document.getElementById('f-area').value.trim(),
+      beds:parseInt(document.getElementById('f-beds').value)||0,
+      baths:parseInt(document.getElementById('f-baths').value)||0,
+      floors:parseInt(document.getElementById('f-floors').value)||1,
+      terrain:document.getElementById('f-terrain').value||null,
+      priceBasic:document.getElementById('f-priceBasic').value.trim(),
+      priceComplete:document.getElementById('f-priceComplete').value.trim(),
+      rating:parseFloat(document.getElementById('f-rating').value)||4.8,
+      desc:document.getElementById('f-desc').value.trim(),
+      features:toLines(document.getElementById('f-features').value),
+      extrasBasic:toLines(document.getElementById('f-extrasBasic').value),
+      extrasComplete:toLines(document.getElementById('f-extrasComplete').value),
+      images:imageUrls,
+      chariow_basic_id:document.getElementById('f-chariow-basic').value.trim()||null,
+      chariow_complete_id:document.getElementById('f-chariow-complete').value.trim()||null,
+    };
+    // PDF : nouveau upload > suppression > URL existante
+    if(pdfUrl) planData.pdf_basic_url=pdfUrl;
+    else if(deletePdf) planData.pdf_basic_url=null;
+    else if(existingPdfUrl) planData.pdf_basic_url=existingPdfUrl;
+    // Vidéo : nouveau upload > suppression > URL existante
+    if(videoUrl) planData.video_url=videoUrl;
+    else if(deleteVideo) planData.video_url=null;
+    else if(existingVideoUrl) planData.video_url=existingVideoUrl;
+
+    if(isEdit){
+      const{error}=await _supabase.from('plans').update(planData).eq('id',id);
+      if(error)throw error;
+      showToast('Plan mis a jour');
+    } else {
+      planData.id=planId;
+      const{error}=await _supabase.from('plans').insert(planData);
+      if(error)throw error;
+      showToast('Plan cree avec succes');
+    }
+    setProgress('Terminé !', '', 100);
+    // Auto-sync : purger le cache CF edge pour refléter le nouveau plan immédiatement
+    try {
+      await fetch('/api/purge-cache',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('wp_purge_secret')||'')},
+        body:JSON.stringify({tags:['plans']})
+      });
+    } catch(e){}
+    await new Promise(r=>setTimeout(r,500));
+    closeModal();
+    await fetchPlans();
+  }catch(err){
+    console.error(err);
+    showToast('Erreur : '+(err.message||'inconnue'));
+  }finally{
+    btn.disabled=false;
+    document.getElementById('btn-cancel').disabled=false;
+    spin.style.display='none';txt.textContent='Enregistrer';
+    hideProgress();
+  }
+}
+
+// ── DELETE ──
+let deleteId=null;
+function confirmDelete(id,title){
+  deleteId=id;
+  document.getElementById('confirm-msg').textContent='Supprimer "'+title+'" ? Cette action est irreversible.';
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirm-overlay').classList.remove('open');deleteId=null}
+document.getElementById('btn-confirm-del').addEventListener('click',async()=>{
+  if(!deleteId)return;
+  const btn=document.getElementById('btn-confirm-del');
+  btn.textContent='Suppression...';btn.disabled=true;
+  try{
+    // Fichiers sur Bunny CDN — pas de suppression auto (stockage minimal)
+    const{error}=await _supabase.from('plans').delete().eq('id',deleteId);
+    if(error)throw error;
+    showToast('Plan supprime');
+    closeConfirm();
+    await fetchPlans();
+  }catch(err){
+    console.error(err);showToast('Erreur suppression');
+  }finally{
+    btn.textContent='Supprimer';btn.disabled=false;
+  }
+});
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── TAB SWITCHING ──
+function switchTab(name){
+  document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-btn-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='analytics' && !avEvents.length) avLoadData();
+}
+
+// ── PDF CONSTRUCTOR ──
+let pdfFiles=[]; // [{file, role, src}]
+let pdfDevisRows=[]; // [{label,unit,qty,pu,total,type}] type: 'row'|'sub'|'total'
+
+function pdfSaveKey(){
+  const k=document.getElementById('pdf-api-key').value.trim();
+  if(!k){showToast('Entrez une clé API');return;}
+  localStorage.setItem('wp_claude_key',k);
+  const s=document.getElementById('pdf-key-saved');
+  s.style.display='inline-block';
+  setTimeout(()=>s.style.display='none',3000);
+  showToast('Clé API sauvegardée');
+}
+
+// Init: charger la clé depuis localStorage
+function pdfInitKey(){
+  const k=localStorage.getItem('wp_claude_key');
+  if(k) document.getElementById('pdf-api-key').value=k;
+}
+
+function pdfHandleFiles(fileList){
+  for(const f of fileList){
+    if(!f.type.startsWith('image/'))continue;
+    const src=URL.createObjectURL(f);
+    const name=f.name.toLowerCase();
+    // Auto-detect role from filename
+    let role='rendu';
+    if(name.includes('cover')||name.includes('couverture')) role='cover';
+    else if(name.includes('implant')) role='implantation';
+    else if(name.includes('rdc')||name.includes('rez')) role='rdc';
+    else if(name.includes('etage')||name.includes('étage')||name.includes('r+1')) role='etage';
+    else if(name.includes('devis')) role='devis';
+    pdfFiles.push({file:f,role,src});
+  }
+  pdfRenderFiles();
+  document.getElementById('pdf-analyze-btn').disabled=pdfFiles.length===0;
+}
+
+const ROLE_OPTIONS=['cover','implantation','rdc','etage','devis','rendu','rendu2','rendu3','rendu4','rendu5','rendu6','ignore'];
+
+function pdfRenderFiles(){
+  const c=document.getElementById('pdf-files');
+  c.innerHTML='';
+  pdfFiles.forEach((item,i)=>{
+    const d=document.createElement('div');
+    d.className='pdf-file';
+    d.innerHTML=`<img src="${item.src}" alt=""><div class="pdf-file-name">${item.file.name}</div>
+      <select onchange="pdfFiles[${i}].role=this.value">
+        ${ROLE_OPTIONS.map(r=>`<option value="${r}"${r===item.role?' selected':''}>${r}</option>`).join('')}
+      </select>
+      <button class="remove-img" onclick="pdfFiles.splice(${i},1);pdfRenderFiles()">×</button>`;
+    c.appendChild(d);
+  });
+  document.getElementById('pdf-analyze-btn').disabled=pdfFiles.length===0;
+}
+
+async function pdfAnalyze(){
+  const apiKey=localStorage.getItem('wp_claude_key')||document.getElementById('pdf-api-key').value.trim();
+  if(!apiKey){showToast('Entrez et sauvegardez votre clé API Claude');return;}
+
+  const statusEl=document.getElementById('pdf-ai-status');
+  const btn=document.getElementById('pdf-analyze-btn');
+  statusEl.className='pdf-ai-status loading';
+  statusEl.innerHTML='<div class="ai-spin"></div>Claude analyse vos images… (20-40 secondes)';
+  btn.disabled=true;
+
+  try{
+    // Préparer les images (max 5 pour l'API, prioriser cover + plans)
+    const priority=['cover','implantation','rdc','etage','devis'];
+    const sorted=[...pdfFiles].sort((a,b)=>{
+      const ai=priority.indexOf(a.role),bi=priority.indexOf(b.role);
+      return (ai===-1?99:ai)-(bi===-1?99:bi);
+    });
+    const toSend=sorted.slice(0,5);
+
+    const imgContents=await Promise.all(toSend.map(async item=>{
+      const b64=await new Promise(res=>{
+        const reader=new FileReader();
+        reader.onload=e=>res(e.target.result.split(',')[1]);
+        reader.readAsDataURL(item.file);
+      });
+      const mt=item.file.type||'image/jpeg';
+      return {type:'image',source:{type:'base64',media_type:mt,data:b64}};
+    }));
+
+    const prompt=`Tu es un expert en architecture africaine. Analyse ces images d'un plan architectural et extrait les données suivantes au format JSON strict.
+
+Images fournies (dans l'ordre): ${toSend.map(i=>i.role).join(', ')}
+
+Réponds UNIQUEMENT avec un objet JSON valide, sans markdown, sans explication :
+{
+  "title": "nom du plan ex: Duplex D4-034 ou Villa V3-020",
+  "type": "villa" ou "duplex",
+  "area": "surface habitable en m² (nombre entier)",
+  "dims": "dimensions ex: 10m × 9m",
+  "floors": 1 ou 2,
+  "beds": nombre de chambres,
+  "baths": nombre de salles de bain,
+  "sub": "sous-titre court",
+  "desc": "description courte 1-2 phrases",
+  "devis": [
+    {"type":"section","label":"NOM SECTION"},
+    {"type":"row","label":"Désignation","unit":"U","qty":1,"pu":50000,"total":50000},
+    {"type":"sub","label":"Sous-total section","total":50000},
+    ...
+    {"type":"total","label":"TOTAL GÉNÉRAL","total":0}
+  ]
+}
+
+Pour le devis : si tu vois un tableau de devis dans les images, extrait les lignes. Sinon génère un devis estimatif réaliste pour ce type de construction en Afrique subsaharienne (Cameroun/Côte d'Ivoire). Inclus ces sections : Terrassement & fondations, Gros œuvre, Charpente & couverture, Menuiserie, Plomberie, Électricité, Carrelage & finitions. Mets des prix en FCFA réalistes.`;
+
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'content-type':'application/json',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-opus-4-5',
+        max_tokens:3000,
+        messages:[{role:'user',content:[...imgContents,{type:'text',text:prompt}]}]
+      })
+    });
+
+    if(!resp.ok){
+      const err=await resp.json();
+      throw new Error(err.error?.message||'Erreur API '+resp.status);
+    }
+    const data=await resp.json();
+    const raw=data.content[0].text.trim();
+    // Extraire le JSON (ignorer markdown si présent)
+    const jsonStr=raw.replace(/^```json?\n?/,'').replace(/\n?```$/,'');
+    const d=JSON.parse(jsonStr);
+
+    // Remplir les champs
+    if(d.title) document.getElementById('pm-title').value=d.title;
+    if(d.type) document.getElementById('pm-type').value=d.type;
+    if(d.area) document.getElementById('pm-area').value=d.area;
+    if(d.dims) document.getElementById('pm-dims').value=d.dims;
+    if(d.floors) document.getElementById('pm-floors').value=d.floors;
+    if(d.beds!=null) document.getElementById('pm-beds').value=d.beds;
+    if(d.baths!=null) document.getElementById('pm-baths').value=d.baths;
+    if(d.sub) document.getElementById('pm-sub').value=d.sub;
+    if(d.desc) document.getElementById('pm-desc').value=d.desc;
+
+    // Remplir le devis
+    if(d.devis&&d.devis.length){
+      pdfDevisRows=d.devis;
+      pdfRenderDevisTable();
+    } else {
+      pdfAddDefaultDevis();
+    }
+
+    statusEl.className='pdf-ai-status success';
+    statusEl.innerHTML='✓ Données extraites — vérifiez et modifiez avant de générer le PDF.';
+
+  }catch(err){
+    statusEl.className='pdf-ai-status error';
+    statusEl.innerHTML='❌ '+err.message;
+  }
+  btn.disabled=false;
+}
+
+function pdfRenderDevisTable(){
+  const tbody=document.getElementById('pdf-devis-body');
+  tbody.innerHTML='';
+  pdfDevisRows.forEach((row,i)=>{
+    const tr=document.createElement('tr');
+    if(row.type==='section'){
+      tr.innerHTML=`<td colspan="5" style="background:var(--brun-moyen);color:var(--or-pale);font-weight:700;padding:8px 12px;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase">
+        <input style="width:100%;border:none;background:transparent;color:var(--or-pale);font-weight:700;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;font-family:inherit;padding:2px 4px" value="${row.label||''}" oninput="pdfDevisRows[${i}].label=this.value">
+      </td><td><button onclick="pdfDevisRows.splice(${i},1);pdfRenderDevisTable()" style="background:none;border:none;color:var(--rouge);cursor:pointer;font-size:.85rem">×</button></td>`;
+    } else if(row.type==='sub'){
+      tr.className='row-sub';
+      tr.innerHTML=`<td colspan="4"><input style="width:100%;border:none;background:transparent;color:#fff;font-weight:600;font-family:inherit;padding:2px 4px" value="${row.label||'Sous-total'}" oninput="pdfDevisRows[${i}].label=this.value"></td>
+        <td><input style="width:100%;border:none;background:transparent;color:#fff;font-weight:600;text-align:right;font-family:inherit;padding:2px 4px" value="${pdfFmt(row.total)}" oninput="pdfDevisRows[${i}].total=pdfParse(this.value)"></td>
+        <td><button onclick="pdfDevisRows.splice(${i},1);pdfRenderDevisTable()" style="background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:.85rem">×</button></td>`;
+    } else if(row.type==='total'){
+      tr.className='row-total';
+      tr.innerHTML=`<td colspan="4" style="color:var(--or);font-weight:700">TOTAL GÉNÉRAL</td>
+        <td><input style="width:100%;border:none;background:transparent;color:var(--or);font-weight:700;text-align:right;font-family:inherit;padding:2px 4px" value="${pdfFmt(row.total)}" oninput="pdfDevisRows[${i}].total=pdfParse(this.value)"></td><td></td>`;
+    } else {
+      tr.innerHTML=`<td><input value="${row.label||''}" oninput="pdfDevisRows[${i}].label=this.value"></td>
+        <td><input value="${row.unit||'Ens.'}" style="width:60px" oninput="pdfDevisRows[${i}].unit=this.value"></td>
+        <td><input value="${row.qty||1}" style="width:50px" type="number" oninput="pdfDevisRows[${i}].qty=+this.value;pdfCalcRow(${i})"></td>
+        <td><input value="${pdfFmt(row.pu)}" style="width:90px" oninput="pdfDevisRows[${i}].pu=pdfParse(this.value);pdfCalcRow(${i})"></td>
+        <td><input value="${pdfFmt(row.total)}" style="width:100px;text-align:right" oninput="pdfDevisRows[${i}].total=pdfParse(this.value)"></td>
+        <td><button onclick="pdfDevisRows.splice(${i},1);pdfRenderDevisTable()" style="background:none;border:none;color:var(--rouge);cursor:pointer;font-size:.85rem">×</button></td>`;
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+function pdfCalcRow(i){
+  const r=pdfDevisRows[i];
+  r.total=(r.qty||0)*(r.pu||0);
+  pdfRenderDevisTable();
+}
+function pdfFmt(n){if(!n&&n!==0)return '';return Number(n).toLocaleString('fr-FR');}
+function pdfParse(s){return parseInt(String(s).replace(/[\s,\.]/g,'').replace(/\u202f/g,''))||0;}
+
+function pdfAddDevisRow(){
+  pdfDevisRows.push({type:'row',label:'',unit:'Ens.',qty:1,pu:0,total:0});
+  pdfRenderDevisTable();
+}
+function pdfAddSubtotalRow(){
+  pdfDevisRows.push({type:'sub',label:'Sous-total',total:0});
+  pdfRenderDevisTable();
+}
+function pdfAddDefaultDevis(){
+  pdfDevisRows=[
+    {type:'section',label:'Terrassement & Fondations'},
+    {type:'row',label:'Terrassement général',unit:'m²',qty:90,pu:8000,total:720000},
+    {type:'row',label:'Béton de propreté',unit:'m³',qty:3,pu:120000,total:360000},
+    {type:'row',label:'Fondations filantes',unit:'ml',qty:80,pu:45000,total:3600000},
+    {type:'sub',label:'Sous-total Terrassement & Fondations',total:4680000},
+    {type:'section',label:'Gros Œuvre'},
+    {type:'row',label:'Colonnes et poteaux',unit:'ml',qty:60,pu:35000,total:2100000},
+    {type:'row',label:'Maçonnerie parpaings',unit:'m²',qty:280,pu:18000,total:5040000},
+    {type:'row',label:'Plancher dalle',unit:'m²',qty:140,pu:55000,total:7700000},
+    {type:'sub',label:'Sous-total Gros Œuvre',total:14840000},
+    {type:'section',label:'Charpente & Couverture'},
+    {type:'row',label:'Charpente métallique',unit:'Ens.',qty:1,pu:4500000,total:4500000},
+    {type:'row',label:'Couverture tôle bac acier',unit:'m²',qty:120,pu:22000,total:2640000},
+    {type:'sub',label:'Sous-total Charpente & Couverture',total:7140000},
+    {type:'section',label:'Finitions'},
+    {type:'row',label:'Carrelage sol',unit:'m²',qty:140,pu:25000,total:3500000},
+    {type:'row',label:'Peinture intérieure/extérieure',unit:'Ens.',qty:1,pu:3000000,total:3000000},
+    {type:'row',label:'Menuiserie alu',unit:'Ens.',qty:1,pu:4000000,total:4000000},
+    {type:'sub',label:'Sous-total Finitions',total:10500000},
+    {type:'total',label:'TOTAL GÉNÉRAL',total:37160000},
+  ];
+  pdfRenderDevisTable();
+}
+
+function pdfGetImageByRole(role){
+  const item=pdfFiles.find(f=>f.role===role);
+  return item?item.src:null;
+}
+function pdfGetImagesByRoles(roles){
+  return pdfFiles.filter(f=>roles.includes(f.role)).map(f=>f.src);
+}
+
+function pdfBuildHTML(){
+  const title=document.getElementById('pm-title').value||'Plan Architecture';
+  const type=document.getElementById('pm-type').value;
+  const area=document.getElementById('pm-area').value||'—';
+  const dims=document.getElementById('pm-dims').value||'—';
+  const floors=document.getElementById('pm-floors').value||'1';
+  const beds=document.getElementById('pm-beds').value||'—';
+  const baths=document.getElementById('pm-baths').value||'—';
+  const sub=document.getElementById('pm-sub').value||'Plan Basique + Devis Estimatif';
+
+  const coverSrc=pdfGetImageByRole('cover')||'';
+  const implSrc=pdfGetImageByRole('implantation')||'';
+  const rdcSrc=pdfGetImageByRole('rdc')||'';
+  const etageSrc=pdfGetImageByRole('etage')||'';
+  const rendus=pdfGetImagesByRoles(['rendu','rendu2','rendu3','rendu4','rendu5','rendu6']);
+
+  // Build devis HTML
+  let devisHTML='';
+  pdfDevisRows.forEach(r=>{
+    if(r.type==='section'){
+      devisHTML+=`<tr><td colspan="5" style="background:#34495E;color:#fff;font-weight:700;padding:9px 14px;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase">${r.label}</td></tr>`;
+    } else if(r.type==='sub'){
+      devisHTML+=`<tr style="background:#2C3E50"><td colspan="4" style="color:#fff;font-weight:600;padding:9px 14px">${r.label}</td><td style="color:#fff;font-weight:600;text-align:right;padding:9px 14px">${pdfFmt(r.total)} FCFA</td></tr>`;
+    } else if(r.type==='total'){
+      devisHTML+=`<tr style="background:#1a1208"><td colspan="4" style="color:#D4A853;font-weight:700;padding:10px 14px;font-size:.9rem">TOTAL GÉNÉRAL</td><td style="color:#D4A853;font-weight:700;text-align:right;padding:10px 14px;font-size:.9rem">${pdfFmt(r.total)} FCFA</td></tr>`;
+    } else {
+      devisHTML+=`<tr><td style="padding:9px 14px">${r.label}</td><td style="padding:9px 14px">${r.unit}</td><td style="padding:9px 14px">${r.qty}</td><td style="padding:9px 14px;text-align:right">${pdfFmt(r.pu)}</td><td style="padding:9px 14px;text-align:right">${pdfFmt(r.total)}</td></tr>`;
+    }
+  });
+
+  const planSections=[];
+  if(implSrc) planSections.push({label:"Plan d'Implantation", src:implSrc, page:"Page 1 · Plan"});
+  if(rdcSrc) planSections.push({label:"Plan Rez-de-Chaussée (RDC)", src:rdcSrc, page:"Page 2 · Plan"});
+  if(etageSrc) planSections.push({label:"Plan Étage R+1", src:etageSrc, page:"Page 3 · Plan"});
+
+  const rendusHTML=rendus.length?rendus.map(src=>`<figure style="overflow:hidden;box-shadow:0 4px 24px rgba(26,18,8,.1)"><img src="${src}" style="width:100%;height:auto;display:block"></figure>`).join(''):'';
+
+  return `<!DOCTYPE html><html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title} — WooPlans</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--brun:#1a1208;--terre:#8B5E3C;--or:#D4A853;--or-pale:#F0D49A;--creme:#FAF7F2;--creme-2:#F3EDE3;--gris:#7A736C;--gris-fonce:#4A4540;--vert:#2D6A4F;--blanc:#fff;--shadow:0 4px 24px rgba(26,18,8,.1)}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;background:var(--creme);color:var(--brun);line-height:1.6}
+.cover-header{background:var(--brun);padding:28px 24px 24px}
+.cover-badge{display:inline-block;background:var(--or);color:var(--brun);font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 12px;margin-bottom:14px}
+.cover-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,6vw,2.8rem);font-weight:700;line-height:1.1;color:#fff;margin-bottom:8px}
+.cover-sub{font-size:.88rem;color:rgba(255,255,255,.6);margin-bottom:18px}
+.cover-specs{display:flex;flex-wrap:wrap;gap:8px}
+.cover-spec{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:5px 12px;font-size:.78rem;color:var(--or-pale)}
+.cover{width:100%;overflow:hidden;height:clamp(260px,50vw,480px)}
+.cover img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.section{padding:48px 24px;max-width:860px;margin:0 auto}
+.section+.section{border-top:1px solid var(--creme-2)}
+.section-label{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--or);font-weight:600;margin-bottom:8px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,4vw,2rem);font-weight:700;color:var(--brun);margin-bottom:24px;line-height:1.2}
+.plan-img-wrap{background:#fff;border:1px solid var(--creme-2);box-shadow:var(--shadow);overflow:hidden;text-align:center}
+.plan-img-wrap img{width:100%;height:auto;display:block}
+.plan-caption{padding:14px 18px;background:var(--brun);color:var(--or-pale);font-size:.78rem;letter-spacing:.06em;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.plan-caption strong{font-size:.9rem;color:#fff}
+.devis-intro{background:var(--blanc);border-left:3px solid var(--or);padding:18px 22px;margin-bottom:28px;box-shadow:var(--shadow)}
+.devis-intro p{font-size:.88rem;color:var(--gris-fonce);line-height:1.7}
+table{width:100%;border-collapse:collapse;font-size:.84rem;margin-bottom:24px;background:#fff;box-shadow:var(--shadow)}
+caption{background:var(--brun);color:var(--or-pale);padding:10px 16px;text-align:left;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+thead th{background:#34495E;color:#fff;padding:10px 14px;text-align:left;font-weight:500;font-size:.8rem}
+tbody td{padding:9px 14px;border-bottom:1px solid #eee}
+.rendus-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rendus-grid figure{overflow:hidden;box-shadow:var(--shadow)}
+.rendus-grid img{width:100%;height:auto;display:block}
+.footer{background:var(--brun);color:rgba(255,255,255,.5);text-align:center;padding:24px;font-size:.78rem;margin-top:40px}
+@media print{.no-print{display:none}.cover{height:auto}.cover img{height:auto}body{background:#fff}}
+</style></head><body>
+
+<div class="cover-header">
+  <div class="cover-badge">📐 Plan Basique + Devis — Exemple</div>
+  <h1 class="cover-title">${title}</h1>
+  <p class="cover-sub">${sub}</p>
+  <div class="cover-specs">
+    <span class="cover-spec">${area} m² habitables</span>
+    <span class="cover-spec">${beds} chambre${beds>1?'s':''} · ${baths} SDB</span>
+    <span class="cover-spec">${floors} niveau${floors>1?'x':''} · ${dims}</span>
+  </div>
+</div>
+${coverSrc?`<div class="cover"><img src="${coverSrc}" alt="${title}"></div>`:''}
+
+${planSections.map((s,idx)=>`
+<section class="section">
+  <div class="section-label">${s.page}</div>
+  <h2 class="section-title">${s.label}</h2>
+  <div class="plan-img-wrap">
+    <img src="${s.src}" alt="${s.label}">
+    <div class="plan-caption"><strong>${s.label}</strong><span>Ref. ${title}</span></div>
+  </div>
+</section>`).join('')}
+
+<section class="section">
+  <div class="section-label">Devis Estimatif</div>
+  <h2 class="section-title">Devis Descriptif et Estimatif</h2>
+  <div class="devis-intro">
+    <p>Ce devis est une estimation indicative des coûts de construction pour le plan <strong>${title}</strong>.</p>
+    <p>Les prix sont donnés à titre indicatif et peuvent varier selon la région et les prestataires.</p>
+  </div>
+  <table>
+    <caption>Devis Estimatif — ${title}</caption>
+    <thead><tr><th>Désignation</th><th>Unité</th><th>Qté</th><th>P.U (FCFA)</th><th>Total (FCFA)</th></tr></thead>
+    <tbody>${devisHTML}</tbody>
+  </table>
+</section>
+
+${rendus.length?`<section class="section">
+  <div class="section-label">Rendus 3D</div>
+  <h2 class="section-title">Vues Extérieures</h2>
+  <div class="rendus-grid">${rendusHTML}</div>
+</section>`:''}
+
+<div class="footer">
+  <strong style="color:var(--or)">WooPlans</strong> — Ce document est un Plan Basique à des fins d'estimation et de personnalisation.<br>
+  Pour obtenir le dossier complet de construction, contactez-nous sur WhatsApp.
+</div>
+</body></html>`;
+}
+
+function pdfPreview(){
+  const html=pdfBuildHTML();
+  const iframe=document.getElementById('pdf-preview-iframe');
+  iframe.style.display='block';
+  const doc=iframe.contentDocument||iframe.contentWindow.document;
+  doc.open();doc.write(html);doc.close();
+  iframe.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function pdfDownload(){
+  const title=document.getElementById('pm-title').value||'plan-wooplans';
+  const html=pdfBuildHTML();
+  const win=window.open('','_blank');
+  if(!win){showToast('Autorisez les popups pour télécharger le PDF');return;}
+  win.document.write(html);
+  win.document.close();
+  setTimeout(()=>{
+    win.focus();
+    win.print();
+  },800);
+}
+
+// ── PDF DROP ZONE EVENT LISTENERS ──
+document.addEventListener('DOMContentLoaded',function(){
+  const pdfDrop=document.getElementById('pdf-drop');
+  if(pdfDrop){
+    pdfDrop.addEventListener('dragover',e=>{e.preventDefault();pdfDrop.classList.add('dragover')});
+    pdfDrop.addEventListener('dragleave',()=>pdfDrop.classList.remove('dragover'));
+    pdfDrop.addEventListener('drop',e=>{e.preventDefault();pdfDrop.classList.remove('dragover');pdfHandleFiles(e.dataTransfer.files)});
+  }
+  pdfInitKey();
+  ghInitToken();
+  pdfAddDefaultDevis();
+});
+</script>
+</body>
+</html>

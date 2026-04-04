@@ -1,0 +1,151 @@
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Plans de maison premium</div>
+    <h1 class="hero-h1">Votre maison,<br><em>disponible</em><br>maintenant.</h1>
+    <p class="hero-desc">Choisissez parmi {{villas}} villas et {{duplexes}} duplex concus pour l'Afrique. Téléchargez le plan basique instantanément, commandez les plans complets à votre rythme.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="scrollToCatalogue()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Télécharger un plan
+      </button>
+      <button class="btn-outline" onclick="scrollToConcept()">Comprendre le concept →</button>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-n">{{villas}}</div><div class="stat-l">Villas</div></div>
+      <div><div class="stat-n">{{duplexes}}</div><div class="stat-l">Duplex</div></div>
+      <div><div class="stat-n">100%</div><div class="stat-l">Afrique</div></div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <img class="hero-img"
+      src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=75&auto=format&fm=webp"
+      srcset="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=75&auto=format&fm=webp 400w,
+              https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=75&auto=format&fm=webp 800w,
+              https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=75&auto=format&fm=webp 1200w"
+      sizes="(max-width:768px) 100vw, 50vw"
+      alt="Villa moderne" loading="eager" fetchpriority="high" decoding="async" width="800" height="600">
+    <div class="hero-badge">
+      <div class="badge-main">Téléchargement instantané</div>
+      <div class="badge-sub">Paiement Mobile Money</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPT -->
+<section id="concept">
+  <div class="concept-grid">
+    <div class="concept-step">
+      <div class="c-num">01</div>
+      <div class="c-title">Choisissez votre plan</div>
+      <p class="c-desc">Parcourez le catalogue. Filtrez par type et surface. Visualisez les rendus en galerie.</p>
+    </div>
+    <div class="concept-div"></div>
+    <div class="concept-step">
+      <div class="c-num">02</div>
+      <span class="c-tag tag-instant">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Instantané
+      </span>
+      <div class="c-title">Plan Basique + Devis</div>
+      <p class="c-desc">Payez par Mobile Money et recevez immédiatement le plan 2D + devis estimatif. Parfait pour démarrer.</p>
+    </div>
+    <div class="concept-div"></div>
+    <div class="concept-step">
+      <div class="c-num">03</div>
+      <span class="c-tag tag-order">Sur commande</span>
+      <div class="c-title">Plans Complets + Personnalisation</div>
+      <p class="c-desc">Avec votre plan basique, commandez les plans complets avec possibilité d'adaptation à votre terrain.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CATALOGUE -->
+<section id="catalogue">
+  <div class="sec-eyebrow">Notre catalogue</div>
+  <h2 class="sec-title">Plans disponibles<br>au téléchargement</h2>
+  <div class="filters">
+    <button class="f-btn active" data-filter="all" onclick="filterPlans('all',this)">Tous les plans</button>
+    <button class="f-btn" data-filter="villa" onclick="filterPlans('villa',this)">Villas</button>
+    <button class="f-btn" data-filter="duplex" onclick="filterPlans('duplex',this)">Duplex</button>
+  </div>
+  <div class="plans-grid" id="plans-grid">
+{{#items}}
+    <a href="/plans/{{slug}}/" class="plan-card" data-type="{{type}}">
+      <div class="card-img-wrap">
+        <img class="card-img" src="{{firstImage}}" alt="{{title}}" loading="lazy" width="400" height="300">
+        <span class="card-badge {{badgeClass}}">{{badgeText}}</span>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">{{title}}</h3>
+        <p class="card-sub">{{subtitle}}</p>
+        <div class="card-specs">
+          <span class="spec">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            {{rooms}} ch
+          </span>
+          <span class="spec">
+            <svg viewBox="0 0 24 24"><path d="M9 6m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M15 6m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M9 8v12h6v-8h-3v8h-3"/><path d="M6 12h12"/></svg>
+            {{surface}} m²
+          </span>
+        </div>
+        <div class="card-footer">
+          <div>
+            <div class="price-lbl">Plan Basique</div>
+            <div class="card-price">{{priceDisplay}}</div>
+          </div>
+          <span class="card-btn">
+            Voir le plan
+            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          </span>
+        </div>
+      </div>
+    </a>
+{{/items}}
+  </div>
+</section>
+
+<!-- TÉMOIGNAGES -->
+<section id="temoignages">
+  <div class="temo-header">
+    <div class="temo-eyebrow">Ils ont fait confiance à WooPlans</div>
+    <h2 class="temo-title">Ce que disent<br>nos clients</h2>
+  </div>
+  <div class="temo-wrap" id="temo-wrap">
+    <div class="temo-track" id="temo-track">
+      <div class="temo-slide"><img src="/temoignages/WhatsApp%20Image%202026-03-30%20at%2022.43.36.jpeg" alt="Témoignage client WooPlans" loading="lazy"></div>
+      <div class="temo-slide"><img src="/temoignages/WhatsApp%20Image%202026-03-30%20at%2022.43.37.jpeg" alt="Témoignage client WooPlans" loading="lazy"></div>
+      <div class="temo-slide"><img src="/temoignages/WhatsApp%20Image%202026-03-30%20at%2022.43.37%20(1).jpeg" alt="Témoignage client WooPlans" loading="lazy"></div>
+      <div class="temo-slide"><img src="/temoignages/WhatsApp%20Image%202026-03-30%20at%2022.43.37%20(2).jpeg" alt="Témoignage client WooPlans" loading="lazy"></div>
+      <div class="temo-slide"><img src="/temoignages/WhatsApp%20Image%202026-03-30%20at%2023.29.58.jpeg" alt="Témoignage client WooPlans" loading="lazy"></div>
+      <div class="temo-slide"><img src="/temoignages/WhatsApp%20Image%202026-03-30%20at%2023.29.58%20(1).jpeg" alt="Témoignage client WooPlans" loading="lazy"></div>
+    </div>
+    <button class="temo-arrow temo-prev" onclick="temoNav(-1)" aria-label="Précédent">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="temo-arrow temo-next" onclick="temoNav(1)" aria-label="Suivant">
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <div class="temo-dots" id="temo-dots"></div>
+  </div>
+</section>
+
+<!-- SEO SECTION -->
+<section id="seo-section" style="padding:60px 5vw;max-width:800px;margin:0 auto">
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:500;color:var(--brun);margin-bottom:20px">WooPlans — Votre Architecte en Ligne pour l'Afrique</h2>
+  <p style="font-size:.95rem;line-height:1.8;color:var(--gris-fonce);margin-bottom:16px">
+    WooPlans est la première plateforme de plans architecturaux pensée pour l'Afrique francophone. Nous proposons +50 plans de maisons modernes, villas et duplex, conçus spécifiquement pour les conditions climatiques et les modes de vie africains.
+  </p>
+  <p style="font-size:.95rem;line-height:1.8;color:var(--gris-fonce);margin-bottom:16px">
+    Nos plans sont disponibles en téléchargement instantané avec une estimation détaillée des coûts de construction. Que vous soyez au Cameroun, en Côte d'Ivoire ou au Sénégal, construisez votre maison de rêve avec les conseils d'architectes professionnels.
+  </p>
+  <p style="font-size:.95rem;line-height:1.8;color:var(--gris-fonce)">
+    Chaque plan inclut un devis estimatif calculé selon les prix locaux des matériaux et de la main-d'œuvre dans votre pays. Commandez votre plan dès aujourd'hui et recevez-le par email et WhatsApp en quelques minutes.
+  </p>
+</section>
+
+<script src="{{filtersJsPath}}" defer></script>
+<script>
+function scrollToConcept() { document.getElementById('concept')?.scrollIntoView({behavior:'smooth'}); }
+function scrollToCatalogue() { document.getElementById('catalogue')?.scrollIntoView({behavior:'smooth'}); }
+</script>

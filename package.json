@@ -1,0 +1,14 @@
+{
+  "name": "wooplans-shop-v2",
+  "version": "1.0.0",
+  "description": "WooPlans Shop v2 - Static Site Generator for architectural plans e-commerce",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "fetch-plans": "node build.js --fetch",
+    "dev": "node build.js --watch"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}

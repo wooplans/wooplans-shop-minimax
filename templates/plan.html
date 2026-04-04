@@ -1,0 +1,207 @@
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="/">Accueil</a> › 
+  <a href="/plans/{{type}}s/">{{type === 'villa' ? 'Villas' : 'Duplex'}}</a> › 
+  {{title}}
+</div>
+
+<!-- GALLERY -->
+<section class="det-gallery">
+  <div class="gal-main" id="gal-main">
+    <div class="gal-img-container" id="gal-img-container">
+{{galleryImages}}
+    </div>
+    <div class="gal-counter" id="gal-counter">1 / {{images.length}}</div>
+    <div class="gal-nav">
+      <button class="gal-btn" onclick="galNav(-1)" aria-label="Image précédente">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="gal-btn" onclick="galNav(1)" aria-label="Image suivante">
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="gal-thumbs" id="gal-thumbs">
+{{galleryThumbs}}
+  </div>
+</section>
+
+<!-- MOBILE CTA -->
+<div class="det-mobile-cta">
+  <a href="{{chariowCheckoutUrl}}" class="det-mobile-cta-btn">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Télécharger pour {{priceDisplay}}
+  </a>
+  <div class="det-mobile-cta-price">Plan Basique avec estimation des coûts</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<section class="det-content">
+  <div class="det-main">
+    <div class="det-type-row">
+      <span class="det-type-pill det-type-{{type}}">{{type === 'villa' ? 'Villa' : 'Duplex'}}</span>
+      <div class="det-stars">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>{{rating}}</span>&nbsp;·&nbsp;<span>{{reviews}} avis</span>
+      </div>
+    </div>
+    
+    <h1 class="det-title">{{title}}</h1>
+    <p class="det-subtitle">{{subtitle}}</p>
+    
+    <div class="det-specs-row">
+      <div>
+        <div class="det-spec-lbl">
+          Surface
+          <span class="tooltip-wrap">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-box">Surface totale bâtie (RDC + Étage pour les duplex)</span>
+          </span>
+        </div>
+        <div class="det-spec-val">{{surface}} m²</div>
+      </div>
+      <div>
+        <div class="det-spec-lbl">Chambres</div>
+        <div class="det-spec-val">{{rooms}}</div>
+      </div>
+      <div>
+        <div class="det-spec-lbl">Salles de bain</div>
+        <div class="det-spec-val">{{bathrooms}}</div>
+      </div>
+      <div>
+        <div class="det-spec-lbl">Niveaux</div>
+        <div class="det-spec-val">{{floors}}</div>
+      </div>
+      <div>
+        <div class="det-spec-lbl">Coût estimé</div>
+        <div class="det-spec-val" style="color:var(--terre)">{{estimateCost}}</div>
+      </div>
+    </div>
+    
+    <p class="det-desc">{{description}}</p>
+    
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--brun);margin-bottom:12px">Ce qui est inclus</h3>
+    <ul class="det-features">
+{{extrasBasic}}
+    </ul>
+    
+    {{similarPlans}}
+    
+    <!-- FAQ -->
+    <section class="faq-section">
+      <h3 class="faq-section-title">Questions fréquentes</h3>
+      
+      <details class="faq-item">
+        <summary>
+          Comment je reçois mon plan après l'achat ?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </summary>
+        <p class="faq-answer">Le <strong>Plan Basique avec devis</strong> est envoyé instantanément par email et WhatsApp après validation du paiement.</p>
+      </details>
+      
+      <details class="faq-item">
+        <summary>
+          Quels sont les moyens de paiement ?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </summary>
+        <p class="faq-answer">Le paiement est sécurisé via <strong>Mobile Money</strong> — <strong>Cameroun</strong> : MTN MoMo, Orange Money.</p>
+      </details>
+      
+      <details class="faq-item">
+        <summary>
+          C'est quoi exactement le Plan Basique ?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </summary>
+        <p class="faq-answer">Le Plan Basique c'est le document idéal pour <strong>valider et personnaliser votre projet</strong> avant de passer à la phase de construction.</p>
+      </details>
+      
+      <details class="faq-item">
+        <summary>
+          Comment obtenir le Dossier Complet pour construire ?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </summary>
+        <p class="faq-answer">Après votre achat vous recevez le Plan Basique. Ensuite un de nos architectes échange avec vous sur <a href="https://wa.me/237694327885" style="color:var(--terre);font-weight:600">WhatsApp</a> pour personnaliser selon votre terrain.</p>
+      </details>
+      
+      <div class="faq-whatsapp-wrap">
+        <a class="whatsapp-btn" href="https://wa.me/237694327885?text=Bonjour%2C%20j%27ai%20une%20question%20sur%20le%20plan%20{{title}}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+          Une question ? Écrivez-nous sur WhatsApp
+        </a>
+        
+        <!-- SHARE -->
+        <div class="share-row">
+          <span class="share-label">Partager</span>
+          <a class="share-btn share-wa" href="https://wa.me/?text={{title}}%20-%20https%3A%2F%2Fshop.wooplans.com%2Fplans%2F{{slug}}%2F" target="_blank" rel="noopener" title="Partager sur WhatsApp">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+          </a>
+          <a class="share-btn share-fb" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fshop.wooplans.com%2Fplans%2F{{slug}}%2F" target="_blank" rel="noopener" title="Partager sur Facebook">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.514c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          </a>
+          <a class="share-btn share-x" href="https://twitter.com/intent/tweet?text={{title}}&url=https%3A%2F%2Fshop.wooplans.com%2Fplans%2F{{slug}}%2F" target="_blank" rel="noopener" title="Partager sur X">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <!-- SIDEBAR -->
+  <div class="det-sidebar">
+    <div class="purchase-box">
+      <div class="pbox-total">
+        <div class="pbox-total-tag">📱 Paiement Mobile Money</div>
+        <div class="pbox-total-label">Prix du Plan Basique</div>
+        <div class="pbox-total-val">{{priceDisplay}} FCFA</div>
+        <div class="pbox-total-sub">Inclut le plan PDF + estimation des coûts</div>
+      </div>
+      
+      <!-- PLAN BASIQUE CARD -->
+      <div class="opt-card featured selected">
+        <div class="opt-promo-badge">−50%</div>
+        <div class="opt-card-head">
+          <div class="opt-card-left">
+            <div class="opt-card-name">Plan Basique + Devis</div>
+            <div class="opt-card-sub">Pour démarrer et personnaliser votre projet</div>
+          </div>
+          <div class="opt-card-price">
+            <div class="opt-price-old">30 000 FCFA</div>
+            <div class="opt-price-val">{{priceDisplay}}</div>
+            <div class="opt-price-cur">FCFA</div>
+          </div>
+        </div>
+        <span class="opt-card-tag tag-inst" style="margin-bottom:12px;display:inline-flex">⚡ INSTANTANÉ</span>
+        <ul class="opt-card-items">
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Plan de distribution et dimensions</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Devis estimatif de la fondation aux finitions</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Rendu 3D extérieurs</li>
+          <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Échange avec un architecte sur WhatsApp</li>
+        </ul>
+      </div>
+      
+      <a href="{{chariowCheckoutUrl}}" class="cta-main">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Télécharger maintenant
+      </a>
+      
+      <div class="trust-note" style="margin-bottom:22px">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Paiement Mobile Money sécurisé — Cameroun : MTN MoMo, Orange Money
+      </div>
+      
+      <!-- PLAN COMPLET CTA -->
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--creme-3)">
+        <p style="font-size:.8rem;color:var(--gris);margin-bottom:12px">Vous souhaitez un dossier complet personnalisé ?</p>
+        <a href="https://wa.me/237694327885?text=Bonjour%2C%20je%20suis%20intéressé%20par%20le%20Plan%20Complet%20pour%20{{title}} ({{planId}})" class="cta-secondary" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+          Commander le Plan Complet
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="{{galleryJsPath}}" defer></script>
+<script>
+window.planData = {{planJson}};
+</script>

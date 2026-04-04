@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<link rel="canonical" href="{{canonical}}">
+<meta property="og:title" content="{{ogTitle}}">
+<meta property="og:description" content="{{ogDescription}}">
+<meta property="og:image" content="{{ogImage}}">
+<meta property="og:url" content="{{ogUrl}}">
+<meta property="og:type" content="{{ogType}}">
+<meta name="theme-color" content="#1a1208">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.json">
+<meta property="og:site_name" content="WooPlans">
+
+<!-- Preconnect -->
+<link rel="preconnect" href="https://xlmwzvkqjnoijdldzrol.supabase.co" crossorigin>
+<link rel="preconnect" href="https://wooplans.b-cdn.net" crossorigin>
+
+<!-- Preload main font -->
+<link rel="preload" as="font" href="/fonts/DMSans-400.woff2" type="font/woff2" crossorigin>
+
+<!-- Critical CSS -->
+<style>
+{{criticalCss}}
+</style>
+
+<!-- Main CSS (deferred) -->
+<link rel="stylesheet" href="{{mainCssPath}}" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{{mainCssPath}}"></noscript>
+
+<!-- JSON-LD -->
+<script type="application/ld+json">{{jsonLd}}</script>
+</head>
+<body class="{{bodyClass}}">
+
+<!-- ALERT BAR -->
+<div id="alert-bar">
+  🔥 <strong>-50%</strong> &nbsp;·&nbsp; Offre valable ce <span id="alert-date"></span>
+</div>
+<script>
+(function(){
+  var j=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var m=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  var d=new Date();
+  document.getElementById('alert-date').textContent=j[d.getDay()]+' '+d.getDate()+' '+m[d.getMonth()];
+})();
+</script>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="/" class="nav-logo"><span class="nav-dot"></span>WooPlans</a>
+  <span class="nav-link" onclick="scrollToConcept()">Comment ça marche</span>
+  <a class="nav-cta" href="/plans/villas/">Voir les plans</a>
+</nav>
+
+<!-- MAIN CONTENT -->
+{{content}}
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <div>
+      <div class="ft-logo">WooPlans</div>
+      <p class="ft-desc">Plans de maison premium conçus pour l'Afrique. Téléchargement instantané, qualité architecturale garantie.</p>
+    </div>
+    <div>
+      <div class="ft-col-title">Catalogue</div>
+      <ul class="ft-links">
+        <li><a href="/plans/villas/">Villas</a></li>
+        <li><a href="/plans/duplex/">Duplex</a></li>
+        <li><a href="/#catalogue">Nouveautés</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="ft-col-title">Support</div>
+      <ul class="ft-links">
+        <li><a href="https://wa.me/237694327885">WhatsApp</a></li>
+        <li><a href="/#faq">FAQ</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bottom">
+    <span>© 2026 WooPlans. Tous droits réservés.</span>
+    <a href="/admin.html" style="color:rgba(255,255,255,.25);text-decoration:none;font-size:.75rem;letter-spacing:.06em">Admin</a>
+    <span>Conçu pour l'Afrique francophone</span>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<!-- ANALYTICS -->
+<script src="{{analyticsJsPath}}" defer></script>
+
+<!-- TURBO NAV -->
+<script src="{{turboNavJsPath}}" defer></script>
+
+</body>
+</html>

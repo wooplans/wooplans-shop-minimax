@@ -1,0 +1,114 @@
+[
+  {
+    "id": "test-001",
+    "planId": "v3-037",
+    "slug": "villa-moderne-3-chambres-v3-037",
+    "type": "villa",
+    "title": "Villa Moderne 3 Chambres",
+    "subtitle": "Villa plain-pied · 164 m² · 3 chambres · 2 salles de bain",
+    "description": "Villa moderne plain-pied avec 3 chambres et 2 salles de bain, offrant une surface habitable de 164 m². Fonctionnelle et élégante avec garage intégré, salon spacieux et dressing.",
+    "rooms": 3,
+    "bathrooms": 2,
+    "surface": 164,
+    "floors": 1,
+    "price": 14900,
+    "estimateCost": "28M - 35M FCFA",
+    "images": [
+      "https://wooplans.b-cdn.net/villa-v3-037/images/villa-v3-037-img-1.jpg",
+      "https://wooplans.b-cdn.net/villa-v3-037/images/villa-v3-037-img-2.jpg"
+    ],
+    "features": ["Salon double hauteur", "Cuisine américaine", "Suite parentale avec dressing"],
+    "extrasBasic": [
+      "Plan de distribution avec dimensions détaillées",
+      "Rendus 3D extérieurs en perspective",
+      "Tableau de surface des pièces",
+      "Devis estimatif complet en FCFA"
+    ],
+    "extrasComplete": [
+      "Décomposition du devis détaillé",
+      "Gros œuvre et finitions détaillés",
+      "Plan implantation terrain"
+    ],
+    "rating": 4.8,
+    "reviews": 31,
+    "pdfBasicUrl": "https://wooplans.b-cdn.net/villa-v3-037/pdfs/villa-v3-037-plan.pdf",
+    "chariowBasicId": "prd_test_001",
+    "chariowCheckoutUrl": "https://shop.wooplans.com/checkout/prd_test_001",
+    "status": "online",
+    "createdAt": "2026-03-21T20:23:17.975781+00:00"
+  },
+  {
+    "id": "test-002",
+    "planId": "d4-043",
+    "slug": "duplex-moderne-4-chambres-d4-043",
+    "type": "duplex",
+    "title": "Duplex Moderne 4 Chambres",
+    "subtitle": "Duplex moderne · 318,38 m² · 4 chambres · 4 salles de bain",
+    "description": "Duplex contemporain de 318,38 m² offrant une distribution optimale sur 2 niveaux. Comprend 4 chambres, 4 salles de bain, espaces de vie spacieux avec séjour, salle à manger et cuisine aménagée.",
+    "rooms": 4,
+    "bathrooms": 4,
+    "surface": 318,
+    "floors": 2,
+    "price": 14900,
+    "estimateCost": "40M - 52M FCFA",
+    "images": [
+      "https://wooplans.b-cdn.net/d4-043/images/img-1774462483076-6.jpg",
+      "https://wooplans.b-cdn.net/d4-043/images/img-1774462470921-0.jpg"
+    ],
+    "features": ["4 chambres spacieuses", "4 salles de bain", "Cuisine américaine", "Terrasses et balcons"],
+    "extrasBasic": [
+      "Plans de distribution RDC et étage avec dimensions",
+      "Rendus 3D extérieurs (3 perspectives)",
+      "Devis estimatif gros œuvre et finitions"
+    ],
+    "extrasComplete": [
+      "Plan d'emprise au sol avec surfaces détaillées",
+      "Plans d'exécution architecturaux complets",
+      "Devis quantitatif détaillé par corps de métier"
+    ],
+    "rating": 5.0,
+    "reviews": 8,
+    "pdfBasicUrl": "https://wooplans.b-cdn.net/duplex-d4-043/pdfs/duplex-d4-043-plan.pdf",
+    "chariowBasicId": "prd_test_002",
+    "chariowCheckoutUrl": "https://shop.wooplans.com/checkout/prd_test_002",
+    "status": "online",
+    "createdAt": "2026-03-21T20:23:17.975781+00:00"
+  },
+  {
+    "id": "test-003",
+    "planId": "v3-045",
+    "slug": "villa-moderne-4-chambres-v3-045",
+    "type": "villa",
+    "title": "Villa Moderne 4 Chambres",
+    "subtitle": "Villa plain-pied · 180 m² · 4 chambres · 3 salles de bain",
+    "description": "Magnifique villa moderne avec 4 chambres et 3 salles de bain. Design contemporain avec de grands espaces ouverts et une intégration parfaite avec l'extérieur.",
+    "rooms": 4,
+    "bathrooms": 3,
+    "surface": 180,
+    "floors": 1,
+    "price": 14900,
+    "estimateCost": "30M - 40M FCFA",
+    "images": [
+      "https://wooplans.b-cdn.net/villa-v3-045/images/villa-v3-045-img-1.jpg",
+      "https://wooplans.b-cdn.net/villa-v3-045/images/villa-v3-045-img-2.jpg"
+    ],
+    "features": ["Grand salon lumineux", "Cuisine moderne ouverte", "Suite parentale spacieuse", "Garage pour 2 voitures"],
+    "extrasBasic": [
+      "Plan de distribution détaillé",
+      "Rendus 3D extérieurs",
+      "Devis estimatif complet"
+    ],
+    "extrasComplete": [
+      "Plans d'exécution complets",
+      "Devis détaillé par poste",
+      "Notes techniques construction"
+    ],
+    "rating": 4.9,
+    "reviews": 15,
+    "pdfBasicUrl": "https://wooplans.b-cdn.net/villa-v3-045/pdfs/villa-v3-045-plan.pdf",
+    "chariowBasicId": "prd_test_003",
+    "chariowCheckoutUrl": "https://shop.wooplans.com/checkout/prd_test_003",
+    "status": "online",
+    "createdAt": "2026-03-22T10:00:00.000000+00:00"
+  }
+]
