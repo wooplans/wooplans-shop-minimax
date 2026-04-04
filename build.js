@@ -54,6 +54,12 @@ function slugify(text) {
     .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
+function extractShortId(title) {
+  const match = title.match(/([vd]\s*[-]?\s*\d+(?:[- ]\d+)*)/i);
+  if (match) return match[1].replace(/\s+/g, '-').toLowerCase();
+  return slugify(title).split('-').slice(0, 3).join('-');
+}
+
 // ── TEMPLATE ENGINE ───────────────────────────────────────────────────────────
 function render(template, data) {
   let out = template;
@@ -144,7 +150,7 @@ function transformPlan(p) {
   return {
     id: p.id,
     planId: p.id,
-    slug: slugify(p.title),
+    slug: extractShortId(p.title),
     type: p.type,
     title: p.title,
     subtitle: p.subtitle || '',
