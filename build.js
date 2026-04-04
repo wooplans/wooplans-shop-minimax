@@ -135,9 +135,9 @@ async function fetchPlansFromSupabase() {
     reviews: p.reviews || 0,
     pdfBasicUrl: p.pdf_basic_url || '',
     chariowBasicId: p.chariow_basic_id || '',
-    chariowCheckoutUrl: p.chariow_basic_id 
-      ? `https://shop.wooplans.com/checkout/${p.chariow_basic_id}`
-      : `https://shop.wooplans.com/checkout/${p.id}`,
+    chariowCheckoutUrl: p.type === 'villa'
+      ? 'https://wooplans.mychariow.shop/prd_n770b0/checkout'
+      : 'https://wooplans.mychariow.shop/prd_krnnh9/checkout',
     status: p.status,
     createdAt: p.created_at
   }));
@@ -169,9 +169,9 @@ function transformPlan(p) {
     reviews: parseInt(p.reviews) || 0,
     pdfBasicUrl: p.pdf_basic_url || '',
     chariowBasicId: p.chariow_basic_id || '',
-    chariowCheckoutUrl: p.chariow_basic_id 
-      ? `https://shop.wooplans.com/checkout/${p.chariow_basic_id}`
-      : `https://shop.wooplans.com/checkout/${p.id}`,
+    chariowCheckoutUrl: p.type === 'villa'
+      ? 'https://wooplans.mychariow.shop/prd_n770b0/checkout'
+      : 'https://wooplans.mychariow.shop/prd_krnnh9/checkout',
     status: p.status,
     createdAt: p.created_at
   };
