@@ -28,10 +28,10 @@
 
 <!-- MOBILE CTA -->
 <div class="det-mobile-cta">
-  <a href="{{chariowCheckoutUrl}}" class="det-mobile-cta-btn">
+  <button type="button" onclick="openCheckoutModal(window.planData)" class="det-mobile-cta-btn">
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     Télécharger pour {{priceDisplay}}
-  </a>
+  </button>
   <div class="det-mobile-cta-price">Plan Basique avec estimation des coûts</div>
 </div>
 
@@ -179,10 +179,10 @@
         </ul>
       </div>
       
-      <a href="{{chariowCheckoutUrl}}" class="cta-main">
+      <button type="button" onclick="openCheckoutModal(window.planData)" class="cta-main">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Télécharger maintenant
-      </a>
+      </button>
       
       <div class="trust-note" style="margin-bottom:22px">
         <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -202,6 +202,7 @@
 </section>
 
 <script src="{{galleryJsPath}}" defer></script>
+<script src="{{checkoutJsPath}}" defer></script>
 <script>
 window.planData = {{planJson}};
 </script>

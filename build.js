@@ -135,9 +135,7 @@ async function fetchPlansFromSupabase() {
     reviews: p.reviews || 0,
     pdfBasicUrl: p.pdf_basic_url || '',
     chariowBasicId: p.chariow_basic_id || '',
-    chariowCheckoutUrl: p.type === 'villa'
-      ? 'https://wooplans.mychariow.shop/prd_n770b0/checkout'
-      : 'https://wooplans.mychariow.shop/prd_krnnh9/checkout',
+    chariowProductId: p.type === 'villa' ? 'prd_n770b0' : 'prd_krnnh9',
     status: p.status,
     createdAt: p.created_at
   }));
@@ -169,9 +167,7 @@ function transformPlan(p) {
     reviews: parseInt(p.reviews) || 0,
     pdfBasicUrl: p.pdf_basic_url || '',
     chariowBasicId: p.chariow_basic_id || '',
-    chariowCheckoutUrl: p.type === 'villa'
-      ? 'https://wooplans.mychariow.shop/prd_n770b0/checkout'
-      : 'https://wooplans.mychariow.shop/prd_krnnh9/checkout',
+    chariowProductId: p.type === 'villa' ? 'prd_n770b0' : 'prd_krnnh9',
     status: p.status,
     createdAt: p.created_at
   };
@@ -214,7 +210,8 @@ function loadTemplates() {
     plan: read(join(TEMPLATES, 'plan.html')),
     category: read(join(TEMPLATES, 'category.html')),
     plans: read(join(TEMPLATES, 'plans.html')),
-    '404': read(join(TEMPLATES, '404.html'))
+    '404': read(join(TEMPLATES, '404.html')),
+    merci: read(join(TEMPLATES, 'merci.html'))
   };
 }
 
@@ -226,7 +223,8 @@ function loadAssets() {
     filtersJs: read(join(ASSETS, 'js', 'filters.js')),
     galleryJs: read(join(ASSETS, 'js', 'gallery.js')),
     turboNavJs: read(join(ASSETS, 'js', 'turbo-nav.js')),
-    analyticsJs: read(join(ASSETS, 'js', 'analytics.js'))
+    analyticsJs: read(join(ASSETS, 'js', 'analytics.js')),
+    checkoutJs: read(join(ASSETS, 'js', 'checkout.js'))
   };
 }
 
@@ -543,6 +541,35 @@ function generate404(templates, assets) {
   return render(templates.base, data);
 }
 
+function generateMerciPage(templates, plans, assets) {
+  const plansJson = JSON.stringify(plans.map(p => ({
+    slug: p.slug,
+    title: p.title,
+    type: p.type,
+    surface: p.surface,
+    rooms: p.rooms,
+    price: p.price,
+    pdfBasicUrl: p.pdfBasicUrl
+  })));
+  
+  const data = {
+    title: 'Merci pour votre commande — WooPlans',
+    description: 'Votre commande a été confirmée. Téléchargez votre plan de maison WooPlans.',
+    ogTitle: 'Merci pour votre commande — WooPlans',
+    ogDescription: 'Votre commande a été confirmée. Téléchargez votre plan de maison WooPlans.',
+    ogUrl: CFG.siteUrl + '/merci/',
+    ogType: 'website',
+    ogImage: '',
+    canonical: CFG.siteUrl + '/merci/',
+    jsonLd: '{}',
+    content: templates.merci,
+    plansJson,
+    criticalCss: assets.criticalCss,
+    bodyClass: 'merci-page'
+  };
+  return render(templates.base, data);
+}
+
 // ── GENERATE SITE MAP ─────────────────────────────────────────────────────────
 function generateSitemap(plans) {
   const urls = [
@@ -620,12 +647,14 @@ function copyAssets(assets) {
   const galleryHash = hash(assets.galleryJs);
   const turboNavHash = hash(assets.turboNavJs);
   const analyticsHash = hash(assets.analyticsJs);
+  const checkoutHash = hash(assets.checkoutJs);
   
   write(join(DIST, 'js', `filters.${filtersHash}.js`), assets.filtersJs);
   write(join(DIST, 'js', `gallery.${galleryHash}.js`), assets.galleryJs);
   write(join(DIST, 'js', `turbo-nav.${turboNavHash}.js`), assets.turboNavJs);
   write(join(DIST, 'js', `analytics.${analyticsHash}.js`), assets.analyticsJs);
-  success(`JS: filters.${filtersHash}.js, gallery.${galleryHash}.js, turbo-nav.${turboNavHash}.js, analytics.${analyticsHash}.js`);
+  write(join(DIST, 'js', `checkout.${checkoutHash}.js`), assets.checkoutJs);
+  success(`JS: filters.${filtersHash}.js, gallery.${galleryHash}.js, turbo-nav.${turboNavHash}.js, analytics.${analyticsHash}.js, checkout.${checkoutHash}.js`);
   
   // Fonts (copy as-is, no hash for cache busting via query params)
   const fontsDir = join(ASSETS, 'fonts');
@@ -635,7 +664,7 @@ function copyAssets(assets) {
   }
   
   // Store hash manifest for template updates
-  const manifest = { criticalHash, mainHash, filtersHash, galleryHash, turboNavHash, analyticsHash };
+  const manifest = { criticalHash, mainHash, filtersHash, galleryHash, turboNavHash, analyticsHash, checkoutHash };
   write(join(DIST, 'asset-manifest.json'), JSON.stringify(manifest));
   
   return manifest;
@@ -688,6 +717,7 @@ async function build() {
     const galleryJsPath = `/js/gallery.${assetManifest.galleryHash}.js`;
     const turboNavJsPath = `/js/turbo-nav.${assetManifest.turboNavHash}.js`;
     const analyticsJsPath = `/js/analytics.${assetManifest.analyticsHash}.js`;
+    const checkoutJsPath = `/js/checkout.${assetManifest.checkoutHash}.js`;
     
     // Replace asset placeholders in base template
     templates.base = templates.base
@@ -696,6 +726,7 @@ async function build() {
       .replace('{{galleryJsPath}}', galleryJsPath)
       .replace('{{turboNavJsPath}}', turboNavJsPath)
       .replace('{{analyticsJsPath}}', analyticsJsPath)
+      .replace('{{checkoutJsPath}}', checkoutJsPath)
       .replace('{{criticalCssPath}}', criticalCssPath);
     
     // Update home template to use correct JS paths
@@ -708,7 +739,8 @@ async function build() {
     templates.plan = templates.plan
       .replace('{{galleryJsPath}}', galleryJsPath)
       .replace('{{turboNavJsPath}}', turboNavJsPath)
-      .replace('{{analyticsJsPath}}', analyticsJsPath);
+      .replace('{{analyticsJsPath}}', analyticsJsPath)
+      .replace('{{checkoutJsPath}}', checkoutJsPath);
     
     // Update plans template
     templates.plans = templates.plans
@@ -763,6 +795,10 @@ async function build() {
     // 11. Generate 404
     write(join(DIST, '404.html'), generate404(templates, assets));
     success('Generated 404.html');
+    
+    // 12. Generate merci page
+    write(join(DIST, 'merci.html'), generateMerciPage(templates, plans, assets));
+    success('Generated merci.html');
     
     const elapsed = ((Date.now() - start) / 1000).toFixed(1);
     log(`Build complete in ${elapsed}s!`);
