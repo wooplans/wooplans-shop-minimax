@@ -1,3 +1,7 @@
+interface Env {
+  CHARIOW_API_KEY: string;
+}
+
 interface CheckoutRequest {
   product_id: string;
   email: string;
@@ -39,7 +43,7 @@ interface ChariowCheckoutResponse {
 const CHARIOW_API_URL = 'https://api.chariow.com/v1';
 
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -102,7 +106,7 @@ export default {
       if (body.plan_title) custom_metadata.plan_title = body.plan_title;
 
       // Call Chariow API
-      const apiKey = typeof CHARIOW_API_KEY !== 'undefined' ? CHARIOW_API_KEY : '';
+      const apiKey = env.CHARIOW_API_KEY;
       if (!apiKey) {
         console.error('CHARIOW_API_KEY is not set');
         return new Response(
