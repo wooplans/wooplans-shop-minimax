@@ -207,7 +207,7 @@ function loadTemplates() {
   return {
     base: read(join(TEMPLATES, 'base.html')),
     home: read(join(TEMPLATES, 'home.html')),
-    plan: read(join(TEMPLATES, 'plan.html')),
+    plan: read(join(TEMPLATES, 'plan-v2.html')),
     category: read(join(TEMPLATES, 'category.html')),
     plans: read(join(TEMPLATES, 'plans.html')),
     '404': read(join(TEMPLATES, '404.html')),
@@ -220,6 +220,7 @@ function loadAssets() {
   return {
     criticalCss: read(join(ASSETS, 'css', 'critical.css')),
     mainCss: read(join(ASSETS, 'css', 'main.css')),
+    planV2Css: read(join(ASSETS, 'css', 'plan-v2.css')),
     filtersJs: read(join(ASSETS, 'js', 'filters.js')),
     galleryJs: read(join(ASSETS, 'js', 'gallery.js')),
     turboNavJs: read(join(ASSETS, 'js', 'turbo-nav.js')),
@@ -302,33 +303,62 @@ function generateHomeJsonLd() {
 }
 
 function generatePlanPage(templates, plan, allPlans, assets) {
+  // Similar plans for the new inline format
   const similarPlans = allPlans
     .filter(p => p.type === plan.type && p.id !== plan.id)
-    .slice(0, 4)
+    .slice(0, 2)
     .map(p => ({
       slug: p.slug,
       title: p.title,
-      subtitle: p.subtitle,
+      type: p.type,
       rooms: p.rooms,
       surface: p.surface,
       price: p.price.toLocaleString('fr-FR'),
-      currency: CFG.currency,
       firstImage: p.images[0] || ''
     }));
-  
-  const features = (plan.features || []).map(f => `<li>${f}</li>`).join('');
-  const extrasBasic = (plan.extrasBasic || []).map(e => `<li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>${e}</li>`).join('');
-  
-  const galleryThumbs = plan.images.map((img, i) => 
-    `<div class="gal-thumb${i === 0 ? ' active' : ''}" data-index="${i}"><img src="${img}" alt="${plan.title} - Image ${i + 1}" loading="lazy"></div>`
+
+  // Gallery thumbs inline format
+  const galleryThumbsInline = plan.images.slice(0, 4).map((img, i) =>
+    `<div class="gallery-thumb${i === 0 ? ' active' : ''}" onclick="switchGalleryImage('${img}')"><img src="${img}" alt="${plan.title} - ${i + 1}" loading="lazy"></div>`
   ).join('');
-  
+
+  // Similar plans inline format
+  const similarPlansInline = similarPlans.map(p => `
+    <a href="/plans/${p.slug}/" class="similar-card">
+      <div class="similar-card-image">
+        <img src="${p.firstImage}" alt="${p.title}" loading="lazy">
+        <span class="plan-badge">${p.type === 'villa' ? 'Villa' : 'Duplex'}</span>
+      </div>
+      <div class="similar-card-content">
+        <h3 class="similar-card-title">${p.title}</h3>
+        <p class="similar-card-specs">${p.type === 'villa' ? 'Villa' : 'Duplex'} · ${p.surface} m² · ${p.rooms} chambres · 2 salles de bain</p>
+        <div class="similar-card-footer">
+          <div class="similar-card-price">
+            <span>À PARTIR DE</span>
+            ${p.price} FCFA
+          </div>
+          <span class="similar-card-cta">VOIR →</span>
+        </div>
+      </div>
+    </a>
+  `).join('');
+
+  // Default rooms list if features not provided
+  const defaultRooms = ['Salon', 'Salle à manger', `${plan.rooms} chambres`, `${plan.bathrooms} salles de bain`, 'Garage 1 place', 'Toilettes visiteur'];
+  const roomsList = (plan.features && plan.features.length > 0
+    ? plan.features
+    : defaultRooms
+  ).map(r => `<li>${r}</li>`).join('');
+
+  // PDF preview (use first image or a placeholder)
+  const pdfPreviewUrl = plan.images[0] || '';
+
   const breadcrumbs = [
     { name: 'Accueil', url: '/' },
     { name: plan.type === 'villa' ? 'Villas' : 'Duplex', url: `/plans/${plan.type}s/` },
     { name: plan.title, url: `/plans/${plan.slug}/` }
   ];
-  
+
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@graph': [
@@ -362,11 +392,11 @@ function generatePlanPage(templates, plan, allPlans, assets) {
       }
     ]
   });
-  
+
   const planData = {
-    title: `${plan.title} — Plan de Maison ${plan.planId} | WooPlans`,
+    title: `${plan.title} — Plan et Devis | WooPlans`,
     description: `Téléchargez le plan ${plan.title} (${plan.surface}m², ${plan.rooms} chambres). Plan détaillé + estimation coûts construction. Conçu pour l'Afrique.`,
-    ogTitle: `${plan.title} — WooPlans`,
+    ogTitle: `${plan.title} — Plan et Devis`,
     ogDescription: `${plan.subtitle} — Plan détaillé avec estimation des coûts de construction.`,
     ogUrl: `${CFG.siteUrl}/plans/${plan.slug}/`,
     ogType: 'product',
@@ -377,42 +407,20 @@ function generatePlanPage(templates, plan, allPlans, assets) {
       plan: JSON.stringify(plan),
       planJson: JSON.stringify(plan),
       ...plan,
-      features,
-      extrasBasic,
-      galleryThumbs,
-      galleryImages: plan.images.map((img, i) => 
+      galleryThumbsInline,
+      galleryImages: plan.images.map((img, i) =>
         `<img class="gal-img" data-index="${i}" src="${img}" alt="${plan.title}"${i === 0 ? ' fetchpriority="high"' : ''}>`
       ).join(''),
       priceDisplay: plan.price.toLocaleString('fr-FR'),
-      similarPlans: similarPlans.length > 0 
-        ? `<h3 class="similar-title">Plans ${plan.type === 'villa' ? 'de Villas' : 'de Duplex'} similaires</h3>
-           <div class="similar-grid">${similarPlans.map(p => `
-             <a href="/plans/${p.slug}/" class="similar-card">
-               <img src="${p.firstImage}" alt="${p.title}" loading="lazy">
-               <div class="similar-info">
-                 <div class="similar-type">${p.type === 'villa' ? 'Villa' : 'Duplex'}</div>
-                 <div class="similar-name">${p.title}</div>
-                 <div class="similar-specs">${p.rooms} ch · ${p.surface}m²</div>
-               </div>
-             </a>
-           `).join('')}</div>`
-        : '',
-      breadcrumbs: breadcrumbs.map((b, i) => 
-        `<span>${i < breadcrumbs.length - 1 
-          ? `<a href="${b.url}">${b.name}</a> › ` 
-          : b.name}</span>`
-      ).join(''),
-      firstImage: plan.images[0] || '',
-      rooms: plan.rooms,
-      bathrooms: plan.bathrooms,
-      surface: plan.surface,
-      floors: plan.floors,
-      estimateCost: plan.estimateCost
+      similarPlansInline,
+      roomsList,
+      pdfPreviewUrl,
+      firstImage: plan.images[0] || ''
     }),
-    criticalCss: assets.criticalCss,
+    criticalCss: assets.criticalCss + assets.planV2Css,
     bodyClass: 'plan-page'
   };
-  
+
   return render(templates.base, planData);
 }
 
@@ -633,22 +641,24 @@ ${redirects}
 // ── COPY ASSETS ───────────────────────────────────────────────────────────────
 function copyAssets(assets) {
   log('Copying assets to dist...');
-  
+
   // CSS with hash
   const criticalHash = hash(assets.criticalCss);
   const mainHash = hash(assets.mainCss);
-  
+  const planV2Hash = hash(assets.planV2Css);
+
   write(join(DIST, 'css', `critical.${criticalHash}.css`), assets.criticalCss);
   write(join(DIST, 'css', `main.${mainHash}.css`), assets.mainCss);
-  success(`CSS: critical.${criticalHash}.css, main.${mainHash}.css`);
-  
+  write(join(DIST, 'css', `plan-v2.${planV2Hash}.css`), assets.planV2Css);
+  success(`CSS: critical.${criticalHash}.css, main.${mainHash}.css, plan-v2.${planV2Hash}.css`);
+
   // JS with hash
   const filtersHash = hash(assets.filtersJs);
   const galleryHash = hash(assets.galleryJs);
   const turboNavHash = hash(assets.turboNavJs);
   const analyticsHash = hash(assets.analyticsJs);
   const checkoutHash = hash(assets.checkoutJs);
-  
+
   write(join(DIST, 'js', `filters.${filtersHash}.js`), assets.filtersJs);
   write(join(DIST, 'js', `gallery.${galleryHash}.js`), assets.galleryJs);
   write(join(DIST, 'js', `turbo-nav.${turboNavHash}.js`), assets.turboNavJs);
@@ -664,9 +674,9 @@ function copyAssets(assets) {
   }
   
   // Store hash manifest for template updates
-  const manifest = { criticalHash, mainHash, filtersHash, galleryHash, turboNavHash, analyticsHash, checkoutHash };
+  const manifest = { criticalHash, mainHash, planV2Hash, filtersHash, galleryHash, turboNavHash, analyticsHash, checkoutHash };
   write(join(DIST, 'asset-manifest.json'), JSON.stringify(manifest));
-  
+
   return manifest;
 }
 
@@ -709,16 +719,17 @@ async function build() {
     
     // 4. Copy assets and get hash manifest
     const assetManifest = copyAssets(assets);
-    
+
     // Update asset references in templates
     const mainCssPath = `/css/main.${assetManifest.mainHash}.css`;
     const criticalCssPath = `/css/critical.${assetManifest.criticalHash}.css`;
+    const planV2CssPath = `/css/plan-v2.${assetManifest.planV2Hash}.css`;
     const filtersJsPath = `/js/filters.${assetManifest.filtersHash}.js`;
     const galleryJsPath = `/js/gallery.${assetManifest.galleryHash}.js`;
     const turboNavJsPath = `/js/turbo-nav.${assetManifest.turboNavHash}.js`;
     const analyticsJsPath = `/js/analytics.${assetManifest.analyticsHash}.js`;
     const checkoutJsPath = `/js/checkout.${assetManifest.checkoutHash}.js`;
-    
+
     // Replace asset placeholders in base template
     templates.base = templates.base
       .replace('{{mainCssPath}}', mainCssPath)
@@ -727,20 +738,22 @@ async function build() {
       .replace('{{turboNavJsPath}}', turboNavJsPath)
       .replace('{{analyticsJsPath}}', analyticsJsPath)
       .replace('{{checkoutJsPath}}', checkoutJsPath)
-      .replace('{{criticalCssPath}}', criticalCssPath);
-    
+      .replace('{{criticalCssPath}}', criticalCssPath)
+      .replace('{{planV2CssPath}}', planV2CssPath);
+
     // Update home template to use correct JS paths
     templates.home = templates.home
       .replace('{{filtersJsPath}}', filtersJsPath)
       .replace('{{turboNavJsPath}}', turboNavJsPath)
       .replace('{{analyticsJsPath}}', analyticsJsPath);
-    
+
     // Update plan template
     templates.plan = templates.plan
       .replace('{{galleryJsPath}}', galleryJsPath)
       .replace('{{turboNavJsPath}}', turboNavJsPath)
       .replace('{{analyticsJsPath}}', analyticsJsPath)
-      .replace('{{checkoutJsPath}}', checkoutJsPath);
+      .replace('{{checkoutJsPath}}', checkoutJsPath)
+      .replace('{{planV2CssPath}}', planV2CssPath);
     
     // Update plans template
     templates.plans = templates.plans

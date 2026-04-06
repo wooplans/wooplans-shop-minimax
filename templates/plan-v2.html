@@ -1,0 +1,378 @@
+<!-- OFFER BAR -->
+<div class="offer-bar">
+  <span class="offer-text">🔥 Offre flash : -50% ce <span id="offer-date"></span> — avant 23h59</span>
+</div>
+
+<!-- HEADER -->
+<header class="plan-header">
+  <a href="/plans/" class="back-link">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    Retour au Catalogue
+  </a>
+  <span class="discount-badge">-50%</span>
+</header>
+
+<!-- HERO SECTION -->
+<section class="plan-hero">
+  <div class="hero-image-container">
+    <img src="{{firstImage}}" alt="{{title}}" class="hero-image" loading="eager">
+    <span class="plan-badge">{{type === 'villa' ? 'Villa' : 'Duplex'}}</span>
+  </div>
+  
+  <div class="hero-content">
+    <h1 class="hero-title">Obtenez le plan et devis<br>de la {{title}}</h1>
+    <p class="hero-subtitle">Téléchargez maintenant le plan et devis de cette {{type}} et commencez à planifier la construction de votre projet</p>
+    
+    <div class="hero-pricing">
+      <span class="current-price">{{priceDisplay}} <span class="currency">Fcfa</span></span>
+      <span class="original-price">Au lieu de <del>30 000 Fcfa</del></span>
+    </div>
+    
+    <a href="#checkout" class="hero-cta">
+      Télécharger le plan et devis
+    </a>
+    <p class="hero-trust">Paiement sécurisé par mobile money {pays}</p>
+  </div>
+</section>
+
+<!-- GALLERY SECTION -->
+<section class="plan-gallery-section">
+  <h2 class="section-title">Découvrez {{title}} en 3D</h2>
+  <p class="section-subtitle">Visualisez chaque détail de votre futur {{type}}</p>
+  
+  <div class="gallery-main">
+    <img src="{{firstImage}}" alt="{{title}}" id="gallery-main-img">
+  </div>
+  
+  <div class="gallery-thumbs">
+    {{galleryThumbsInline}}
+  </div>
+  
+  <div class="share-bar">
+    <span class="share-label">Partager ce plan</span>
+    <div class="share-buttons">
+      <a href="https://wa.me/?text={{title}}%20-%20https%3A%2F%2Fshop.wooplans.com%2Fplans%2F{{slug}}%2F" class="share-btn wa" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+      </a>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fshop.wooplans.com%2Fplans%2F{{slug}}%2F" class="share-btn fb" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.514c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+      </a>
+      <a href="https://twitter.com/intent/tweet?text={{title}}&url=https%3A%2F%2Fshop.wooplans.com%2Fplans%2F{{slug}}%2F" class="share-btn x" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <button class="share-btn copy" onclick="copyPlanLink()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+    </div>
+  </div>
+  
+  <a href="#checkout" class="section-cta">Télécharger le plan et devis</a>
+  <p class="section-trust">Paiement sécurisé par mobile money {pays}</p>
+</section>
+
+<!-- PRESENTATION SECTION -->
+<section class="plan-presentation">
+  <h2 class="section-title">Présentation de la {{type === 'villa' ? 'villa' : 'maison'}} {{title}}</h2>
+  <p class="plan-specs-header">{{type === 'villa' ? 'Villa' : 'Maison'}} de {{surface}} m² · {{rooms}} chambres · {{bathrooms}} salles de bain</p>
+  
+  <p class="plan-description">{{description}}</p>
+  
+  <div class="specs-grid">
+    <div class="spec-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="spec-label">Surface</span>
+      <span class="spec-value">{{surface}} m²</span>
+    </div>
+    <div class="spec-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="spec-label">Chambres</span>
+      <span class="spec-value">{{rooms}}</span>
+    </div>
+    <div class="spec-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6M4 12l4-8h8l4 8"/></svg>
+      <span class="spec-label">Salles de bain</span>
+      <span class="spec-value">{{bathrooms}}</span>
+    </div>
+    <div class="spec-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span class="spec-label">Niveaux</span>
+      <span class="spec-value">{{floors}}</span>
+    </div>
+    <div class="spec-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21.7l-6.6-6.6a9 9 0 1 1 13.2 0L12 21.7z"/></svg>
+      <span class="spec-label">Terrain</span>
+      <span class="spec-value">à partir de 300 m²</span>
+    </div>
+    <div class="spec-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span class="spec-label">Coût estimé</span>
+      <span class="spec-value">{{estimateCost}}</span>
+    </div>
+  </div>
+  
+  <ul class="rooms-list">
+    {{roomsList}}
+  </ul>
+  
+  <a href="#checkout" class="section-cta">Télécharger le plan et devis</a>
+  <p class="section-trust">Paiement sécurisé par mobile money {pays}</p>
+</section>
+
+<!-- OFFER SECTION -->
+<section class="plan-offer" id="checkout">
+  <div class="offer-header">
+    <span class="offer-badge">Offre flash : -50% de réduction</span>
+    <p class="offer-valid">Valable ce <span id="offer-date-2"></span> avant 23h59</p>
+  </div>
+  
+  <div class="offer-pricing">
+    <span class="offer-current">{{priceDisplay}} <span>Fcfa</span></span>
+    <span class="offer-original">Au lieu de <del>30 000 Fcfa</del></span>
+  </div>
+  
+  <div class="offer-mockup">
+    <img src="{{pdfPreviewUrl}}" alt="Aperçu du plan" loading="lazy">
+  </div>
+  
+  <div class="offer-includes">
+    <h3>Ce que vous obtenez immédiatement</h3>
+    <ul>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Plan de distribution + dimensions
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Devis de la fondation aux finitions
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Discuter avec un architecte sur WhatsApp
+      </li>
+    </ul>
+  </div>
+  
+  <div class="offer-bonus">
+    <span class="bonus-tag">Bonus inclus !</span>
+    <p>Ebook PDF : Les 5 erreurs à éviter avant de lancer votre chantier de construction</p>
+  </div>
+  
+  <div class="countdown">
+    <span>Fin de l'offre dans :</span>
+    <div class="countdown-timer" id="countdown">
+      <span id="hours">19</span>h : <span id="minutes">46</span>min : <span id="seconds">30</span>s
+    </div>
+  </div>
+  
+  <!-- CHECKOUT FORM -->
+  <form class="checkout-form" id="checkout-form">
+    <div class="form-row">
+      <div class="form-field">
+        <label for="lastname">Nom</label>
+        <input type="text" id="lastname" name="lastname" required>
+      </div>
+      <div class="form-field">
+        <label for="firstname">Prénom</label>
+        <input type="text" id="firstname" name="firstname" required>
+      </div>
+    </div>
+    
+    <div class="form-field">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    
+    <div class="form-field">
+      <label for="phone">Téléphone WhatsApp</label>
+      <div class="phone-input">
+        <select id="country-code" name="country_code">
+          <option value="237">CM +237</option>
+          <option value="225">CI +225</option>
+          <option value="221">SN +221</option>
+          <option value="241">GA +241</option>
+          <option value="242">CG +242</option>
+          <option value="243">CD +243</option>
+        </select>
+        <input type="tel" id="phone" name="phone" placeholder="6XX XXX XXX" required>
+      </div>
+    </div>
+    
+    <div class="form-field">
+      <label for="promo">Code Promo (optionnel)</label>
+      <input type="text" id="promo" name="promo" placeholder="Entrez votre code">
+    </div>
+    
+    <button type="submit" class="checkout-submit">
+      Procéder au paiement →
+    </button>
+    
+    <p class="checkout-note">Vous serez redirigé vers la page de paiement Mobile Money Sécurisée</p>
+  </form>
+  
+  <div class="offer-trust">
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Satisfait ou remboursé</span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Livraison instantanée</span>
+  </div>
+</section>
+
+<!-- TESTIMONIALS SECTION -->
+<section class="plan-testimonials">
+  <h2 class="section-title">Ce que disent nos clients</h2>
+  <p class="section-subtitle">Ils planifient leur projet de construction</p>
+  
+  <div class="testimonials-list">
+    <div class="testimonial">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Plan très détaillé, le devis est réaliste. Je recommande !"</p>
+      <span class="testimonial-author">Emmanuel T. — Douala</span>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Excellent rapport qualité-prix. L'architecte m'a aidé à adapter le plan."</p>
+      <span class="testimonial-author">Fatou N. — Yaoundé</span>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Téléchargement instantané et échange WhatsApp très réactif."</p>
+      <span class="testimonial-author">Jean-Pierre K. — Douala</span>
+    </div>
+  </div>
+  
+  <a href="#checkout" class="section-cta">Planifier votre projet maintenant</a>
+  <p class="section-trust">Paiement sécurisé par mobile money</p>
+</section>
+
+<!-- FAQ SECTION -->
+<section class="plan-faq">
+  <h2 class="section-title">Questions fréquentes</h2>
+  <p class="section-subtitle">Tous ce que vous devez savoir</p>
+  
+  <div class="faq-list">
+    <details class="faq-item">
+      <summary>Que faire si le plan ne correspond pas à mon terrain ?</summary>
+      <p>Un architecte vous accompagne sur WhatsApp pour adapter le plan selon vos besoins.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Que contient exactement le fichier que je télécharge ?</summary>
+      <p>Vous recevez un PDF avec le plan de distribution, les dimensions, le devis détaillé et les rendus 3D.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Le plan est-il conforme aux normes de construction ?</summary>
+      <p>Oui, tous nos plans sont conçus par des architectes et respectent les normes en vigueur en Afrique francophone.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Comment je reçois le plan après avoir payé ?</summary>
+      <p>Le fichier est envoyé instantanément par email et WhatsApp après confirmation du paiement.</p>
+    </details>
+  </div>
+  
+  <a href="#checkout" class="section-cta">Je démarre mon projet maintenant</a>
+  <p class="section-trust">Paiement sécurisé par mobile money</p>
+</section>
+
+<!-- SIMILAR PLANS SECTION -->
+<section class="plan-similar">
+  <h2 class="section-title">Plans similaires</h2>
+  <p class="section-subtitle">Découvrez d'autres modèles du catalogue</p>
+  
+  <div class="similar-grid">
+    {{similarPlansInline}}
+  </div>
+</section>
+
+<!-- STICKY FOOTER -->
+<div class="plan-footer-sticky">
+  <div class="footer-info">
+    <span class="footer-label">Plan et devis</span>
+    <span class="footer-title">{{title}}</span>
+    <span class="footer-price">{{priceDisplay}} FCFA</span>
+  </div>
+  <a href="#checkout" class="footer-cta">Télécharger</a>
+</div>
+
+<script>
+// Set offer date
+const today = new Date();
+const options = { weekday: 'long', day: 'numeric', month: 'long' };
+const dateStr = today.toLocaleDateString('fr-FR', options);
+document.getElementById('offer-date').textContent = dateStr;
+document.getElementById('offer-date-2').textContent = dateStr;
+
+// Countdown timer
+function updateCountdown() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(23, 59, 59, 999);
+  
+  const diff = midnight - now;
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  
+  document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+  document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+  document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+// Copy link function
+function copyPlanLink() {
+  navigator.clipboard.writeText(window.location.href).then(() => {
+    alert('Lien copié !');
+  });
+}
+
+// Gallery image switch
+function switchGalleryImage(src) {
+  document.getElementById('gallery-main-img').src = src;
+}
+
+// Checkout form
+window.planData = {{planJson}};
+
+document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const submitBtn = e.target.querySelector('.checkout-submit');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Redirection...';
+  
+  const formData = new FormData(e.target);
+  
+  try {
+    const response = await fetch('https://xlmwzvkqjnojdldzrol.supabase.co/functions/v1/chariow-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        product_id: window.planData.chariowProductId,
+        email: formData.get('email'),
+        first_name: formData.get('firstname'),
+        last_name: formData.get('lastname'),
+        phone: {
+          number: formData.get('phone'),
+          country_code: formData.get('country_code')
+        },
+        plan_id: window.planData.id,
+        plan_slug: window.planData.slug,
+        plan_title: window.planData.title,
+        discount_code: formData.get('promo') || undefined
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+    } else {
+      alert(data.error || 'Une erreur est survenue');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Procéder au paiement →';
+    }
+  } catch (err) {
+    alert('Erreur de connexion');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Procéder au paiement →';
+  }
+});
+</script>
