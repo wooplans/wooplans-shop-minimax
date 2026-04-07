@@ -365,6 +365,42 @@ function generatePlanPage(templates, plan, allPlans, assets) {
     { name: plan.title, url: `/plans/${plan.slug}/` }
   ];
 
+  // FAQ structured data for SEO
+  const faqData = [
+    {
+      '@type': 'Question',
+      name: 'Que faire si le plan ne correspond pas à mon terrain ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Un architecte vous accompagne sur WhatsApp pour adapter le plan selon vos besoins.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Que contient exactement le fichier que je télécharge ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Vous recevez un PDF avec le plan de distribution, les dimensions, le devis détaillé et les rendus 3D.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Le plan est-il conforme aux normes de construction ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Oui, tous nos plans sont conçus par des architectes et respectent les normes en vigueur en Afrique francophone.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Comment je reçois le plan après avoir payé ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Le fichier est envoyé instantanément par email et WhatsApp après confirmation du paiement.'
+      }
+    }
+  ];
+
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@graph': [
@@ -378,14 +414,20 @@ function generatePlanPage(templates, plan, allPlans, assets) {
           price: plan.price,
           priceCurrency: CFG.currency,
           availability: 'https://schema.org/InStock',
-          url: `${CFG.siteUrl}/plans/${plan.slug}/`
+          url: `${CFG.siteUrl}/plans/${plan.slug}/`,
+          seller: {
+            '@type': 'Organization',
+            name: 'WooPlans'
+          }
         },
         brand: { '@type': 'Brand', name: 'WooPlans' },
         aggregateRating: {
           '@type': 'AggregateRating',
           ratingValue: plan.rating,
           reviewCount: plan.reviews
-        }
+        },
+        sku: plan.planId,
+        mpn: plan.id
       },
       {
         '@type': 'BreadcrumbList',
@@ -395,6 +437,10 @@ function generatePlanPage(templates, plan, allPlans, assets) {
           name: b.name,
           item: b.url.startsWith('http') ? b.url : CFG.siteUrl + b.url
         }))
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faqData
       }
     ]
   });
