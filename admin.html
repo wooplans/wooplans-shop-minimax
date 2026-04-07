@@ -737,11 +737,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--creme);color:var(--brun);
             <div class="form-group"><label>Description</label><textarea id="f-desc" placeholder="Description du plan..."></textarea></div>
           </div>
           <div class="form-row col-1">
-            <div class="form-group"><label>Caracteristiques (1 par ligne)</label><textarea id="f-features" placeholder="Salon/Sejour 18,67 m2&#10;Cuisine 8,73 m2&#10;3 chambres"></textarea></div>
+            <div class="form-group"><label>Caracteristiques (1 par ligne, pieces regroupees)</label><textarea id="f-features" placeholder="Salon/Séjour&#10;Cuisine&#10;3 chambres&#10;2 salles de bain&#10;Terrasse"></textarea></div>
           </div>
-          <!-- Extras masqués mais présents pour compatibilité Supabase -->
-          <textarea id="f-extrasBasic" style="display:none"></textarea>
-          <textarea id="f-extrasComplete" style="display:none"></textarea>
         </div>
 
         <div class="form-section">
@@ -1296,32 +1293,37 @@ async function aiPrefill(){
   const statusEl=document.getElementById('ai-status');
   const btn=document.getElementById('ai-btn');
 
-  // Réinitialiser le statut
   statusEl.className='ai-status';
   statusEl.style.display='none';
 
   if(!input.files.length){
     statusEl.className='ai-status error';
-    statusEl.innerHTML='Veuillez sélectionner un fichier PDF.';
+    statusEl.textContent='Veuillez sélectionner un fichier PDF.';
     statusEl.style.display='flex';
     return;
   }
   const file=input.files[0];
-  if(file.size>25*1024*1024){
+  if(file.size>10*1024*1024){
     statusEl.className='ai-status error';
-    statusEl.innerHTML='Fichier trop volumineux (max 25 Mo). Utilisez la version APS uniquement (sans devis).';
+    statusEl.textContent='Fichier trop volumineux (max 10 Mo).';
+    statusEl.style.display='flex';
+    return;
+  }
+
+  const apiKey=localStorage.getItem('wp_claude_key');
+  if(!apiKey){
+    statusEl.className='ai-status error';
+    statusEl.textContent='Configurez d\'abord votre clé API Claude dans l\'onglet Constructeur PDF.';
     statusEl.style.display='flex';
     return;
   }
 
   btn.disabled=true;
-  const isBig = file.size > 3*1024*1024;
   statusEl.className='ai-status loading';
-  statusEl.innerHTML='<div class="ai-spin"></div>L\'IA analyse votre PDF… '+(isBig?'(30-45 secondes pour un gros fichier)':'(10-20 secondes)');
+  statusEl.innerHTML='<div class="ai-spin"></div>Analyse du PDF en cours...';
   statusEl.style.display='flex';
 
   try {
-    // Lire le PDF en base64
     const base64=await new Promise((resolve,reject)=>{
       const reader=new FileReader();
       reader.onload=e=>resolve(e.target.result.split(',')[1]);
@@ -1329,36 +1331,64 @@ async function aiPrefill(){
       reader.readAsDataURL(file);
     });
 
-    // Appel Edge Function avec timeout 50s
-    const controller=new AbortController();
-    const timeoutId=setTimeout(()=>controller.abort(),50000);
+    const response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'content-type':'application/json',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2000,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}},
+            {type:'text',text:`Tu es un expert en architecture résidentielle africaine. Analyse ce plan architectural et extrais les informations suivantes.
 
-    let res;
-    try {
-      res=await fetch(`${SUPABASE_URL}/functions/v1/ai-prefill`,{
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'Authorization':'Bearer '+SUPABASE_ANON_KEY,
-        },
-        body:JSON.stringify({pdfBase64:base64}),
-        signal:controller.signal,
-      });
-    } finally {
-      clearTimeout(timeoutId);
+Réponds UNIQUEMENT avec un objet JSON valide, sans markdown :
+
+{
+  "title": "Nom du plan (ex: Villa V3-037 ou Duplex D4-034)",
+  "type": "villa" ou "duplex",
+  "area": "Surface habitable en m² (nombre entier uniquement, ex: 142)",
+  "beds": nombre de chambres (entier),
+  "baths": nombre de salles de bain (entier),
+  "floors": nombre de niveaux (1 ou 2),
+  "terrain": "Surface terrain recommandé en m² (ex: 400)" ou null,
+  "description": "Description marketing attractive en français (2-3 phrases qui met en valeur les atouts du plan pour un acheteur africain)",
+  "features": ["Salon/Séjour","Cuisine","3 chambres","2 salles de bain","Terrasse"]
+}
+
+Règles pour features :
+- Regroupe les pièces identiques (ex: "3 chambres" et non "Chambre 1", "Chambre 2").
+- Ne PAS inclure les surfaces des pièces.
+- Liste simple, un élément par ligne.
+- Inclus toutes les pièces : séjour/salon, cuisine, chambres (regroupées), salles de bain (regroupées), terrasse, garage si présent, buanderie, etc.
+
+Si une information est absente du PDF, mets null.`}
+          ]
+        }]
+      })
+    });
+
+    if(!response.ok){
+      const err=await response.json();
+      throw new Error(err.error?.message||'Erreur API '+response.status);
     }
 
-    const json=await res.json();
-    if(!res.ok||json.error) throw new Error(json.error||'Erreur serveur '+res.status);
-    const d=json.data;
+    const data=await response.json();
+    const rawText=data.content[0].text.trim();
+    const jsonStr=rawText.replace(/^```json?\n?/,'').replace(/\n?```$/,'');
+    const d=JSON.parse(jsonStr);
 
-    // Remplir les champs
-    if(d.title)    document.getElementById('f-title').value=d.title;
-    if(d.type)     document.getElementById('f-type').value=d.type;
-    if(d.subtitle) document.getElementById('f-subtitle').value=d.subtitle;
-    if(d.area)     document.getElementById('f-area').value=d.area;
-    if(d.beds!=null)   document.getElementById('f-beds').value=d.beds;
-    if(d.baths!=null)  document.getElementById('f-baths').value=d.baths;
+    if(d.title) document.getElementById('f-title').value=d.title;
+    if(d.type) document.getElementById('f-type').value=d.type;
+    if(d.area) document.getElementById('f-area').value=d.area;
+    if(d.beds!=null) document.getElementById('f-beds').value=d.beds;
+    if(d.baths!=null) document.getElementById('f-baths').value=d.baths;
     if(d.floors!=null) document.getElementById('f-floors').value=d.floors;
     if(d.terrain){
       const tv='à partir de '+d.terrain+' m²';
@@ -1368,21 +1398,16 @@ async function aiPrefill(){
     }
     if(d.description) document.getElementById('f-desc').value=d.description;
     if(d.features&&d.features.length) document.getElementById('f-features').value=d.features.join('\n');
-    if(d.extrasBasic&&d.extrasBasic.length) document.getElementById('f-extrasBasic').value=d.extrasBasic.join('\n');
-    if(d.extrasComplete&&d.extrasComplete.length) document.getElementById('f-extrasComplete').value=d.extrasComplete.join('\n');
 
-    // Déclencher les prix par défaut selon le type
     document.getElementById('f-type').dispatchEvent(new Event('change'));
 
     statusEl.className='ai-status success';
-    statusEl.innerHTML='✓ Formulaire pré-rempli — vérifiez et modifiez avant d\'enregistrer.';
+    statusEl.textContent='✓ Formulaire pré-rempli — vérifiez et modifiez si nécessaire.';
 
   } catch(err){
     statusEl.className='ai-status error';
-    const isTimeout = err.name==='AbortError';
-    statusEl.innerHTML=isTimeout
-      ? '⏱ Délai dépassé (50s). Le PDF est trop volumineux — essayez avec un fichier plus léger ou les premières pages seulement.'
-      : '❌ Erreur : '+err.message;
+    statusEl.textContent='❌ Erreur : '+err.message;
+    console.error('aiPrefill error:',err);
   }
 
   btn.disabled=false;
@@ -1446,8 +1471,6 @@ function openModal(plan){
     document.getElementById('f-priceComplete').value=plan.priceComplete||'';
     document.getElementById('f-desc').value=plan.desc||'';
     document.getElementById('f-features').value=(plan.features||[]).join('\n');
-    document.getElementById('f-extrasBasic').value=(plan.extrasBasic||[]).join('\n');
-    document.getElementById('f-extrasComplete').value=(plan.extrasComplete||[]).join('\n');
     document.getElementById('f-chariow-basic').value=plan.chariow_basic_id||'';
     document.getElementById('f-chariow-complete').value=plan.chariow_complete_id||'';
     if(plan.video_url){ existingVideoUrl=plan.video_url; }
@@ -1707,8 +1730,6 @@ async function savePlan(e){
       rating:parseFloat(document.getElementById('f-rating').value)||4.8,
       desc:document.getElementById('f-desc').value.trim(),
       features:toLines(document.getElementById('f-features').value),
-      extrasBasic:toLines(document.getElementById('f-extrasBasic').value),
-      extrasComplete:toLines(document.getElementById('f-extrasComplete').value),
       images:imageUrls,
       chariow_basic_id:document.getElementById('f-chariow-basic').value.trim()||null,
       chariow_complete_id:document.getElementById('f-chariow-complete').value.trim()||null,

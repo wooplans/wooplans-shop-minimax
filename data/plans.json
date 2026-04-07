@@ -586,5 +586,72 @@
     "chariow_basic_id": null,
     "chariow_complete_id": null,
     "terrain": "à partir de 300 m²"
+  },
+  {
+    "id": "a5d1d637-4c85-480b-88e2-4d8f983da3fe",
+    "type": "duplex",
+    "title": "D5-016",
+    "subtitle": "Duplex moderne · 219,31 m² · 4 chambres · 4 salles de bain",
+    "area": "219.31",
+    "beds": 4,
+    "baths": 4,
+    "floors": 2,
+    "cost": null,
+    "priceBasic": "19 000",
+    "priceComplete": "199 000",
+    "rating": 4.8,
+    "reviews": null,
+    "desc": "Duplex contemporain sur deux niveaux offrant une surface totale de 219,31 m². Le plan propose une distribution optimale avec 4 chambres, 4 salles de bain, 2 salons, une cuisine équipée, une salle à manger, un bureau et un dressing. Façades élégantes avec toit en pente et larges baies vitrées, complétées par un devis estimatif complet de 43 864 000 FCFA.",
+    "features": [
+      "Living (Salon) : 28,24 m²",
+      "Dining (SAM) : 14,28 m²",
+      "Kitchen (Cuisine) : 9,64 m²",
+      "Master's Bedroom (Chambre Principale) : 12,78 m²",
+      "Bedroom (Chambre) 1 : 12,78 m²",
+      "Bedroom (Chambre) 2 : 10,70 m²",
+      "Bedroom (Chambre) 3 : 9,76 m²",
+      "Guest's Bedroom (Chambre Visiteur) : 11,18 m²",
+      "Office (Bureau) : 10,70 m²",
+      "Bath (SDB) 1 : 4,56 m²",
+      "Bath (SDB) 2 : 3,14 m²",
+      "Bath (SDB) 3 : 4,64 m²",
+      "Bath (SDB) 4 : 4,66 m²",
+      "Dressing : 4,81 m²",
+      "Guest Toilet (WC) : 3,62 m²",
+      "Corridor : 8,21 m²",
+      "Hall : 3,81 m²",
+      "Terrace 1 : 11,72 m²",
+      "Terrace 2 : 3,30 m²",
+      "Terrace 3 : 7,69 m²"
+    ],
+    "extrasBasic": [
+      "Plan de distribution avec dimensions détaillées (RDC et Étage 1)",
+      "Façades et rendus 3D extérieurs (4 perspectives)",
+      "Plan d'implantation (13,55 m x 11,11 m)",
+      "Tableau de surfaces par pièce et par étage"
+    ],
+    "extrasComplete": [
+      "Plans d'exécution architecturaux complets (RDC et Étage)",
+      "Plan d'implantation précis avec cotations",
+      "Devis estimatif détaillé par corps d'état (43 864 000 FCFA)",
+      "Rendus 3D haute qualité de la façade",
+      "Specifications des matériaux et finitions"
+    ],
+    "images": [
+      "https://wooplans.b-cdn.net/d5-016/images/d5-016-img-1.jpg",
+      "https://wooplans.b-cdn.net/d5-016/images/d5-016-img-2.jpg",
+      "https://wooplans.b-cdn.net/d5-016/images/d5-016-img-3.jpg",
+      "https://wooplans.b-cdn.net/d5-016/images/d5-016-img-4.jpg",
+      "https://wooplans.b-cdn.net/d5-016/images/d5-016-img-5.jpg",
+      "https://wooplans.b-cdn.net/d5-016/images/d5-016-img-6.jpg"
+    ],
+    "pdf_basic_url": null,
+    "pdf_example_url": null,
+    "created_at": "2026-04-07T16:05:02.092108+00:00",
+    "video_url": null,
+    "status": "online",
+    "chariow_basic_id": null,
+    "chariow_complete_id": null,
+    "terrain": "à partir de 300 m²"
   }
 ]
