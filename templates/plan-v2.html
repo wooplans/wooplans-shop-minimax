@@ -28,10 +28,10 @@
       <span class="original-price">Au lieu de <del>30 000 Fcfa</del></span>
     </div>
     
-    <a href="#checkout" class="hero-cta">
+    <button type="button" class="hero-cta" onclick="openCheckoutPopup()">
       Télécharger le plan et devis
-    </a>
-    <p class="hero-trust">Paiement sécurisé par mobile money {pays}</p>
+    </button>
+    <p class="hero-trust">Paiement sécurisé par mobile money</p>
   </div>
 </section>
 
@@ -62,18 +62,9 @@
     </div>
   </div>
   
-  <a href="#checkout" class="section-cta">Télécharger le plan et devis</a>
+  <button type="button" class="section-cta" onclick="openCheckoutPopup()">Télécharger le plan et devis</button>
   <p class="section-trust">Paiement sécurisé par mobile money</p>
 </section>
-
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox">
-  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fermer">×</button>
-  <button class="lightbox-prev" onclick="prevImage()" aria-label="Précédent">‹</button>
-  <button class="lightbox-next" onclick="nextImage()" aria-label="Suivant">›</button>
-  <img class="lightbox-image" id="lightbox-img" alt="Image agrandie">
-  <div class="lightbox-counter"><span id="lightbox-current">1</span> / <span id="lightbox-total">{{imagesCount}}</span></div>
-</div>
 
 <!-- PRESENTATION SECTION -->
 <section class="plan-presentation">
@@ -119,12 +110,12 @@
     {{roomsList}}
   </ul>
   
-  <a href="#checkout" class="section-cta">Télécharger le plan et devis</a>
-  <p class="section-trust">Paiement sécurisé par mobile money {pays}</p>
+  <button type="button" class="section-cta" onclick="openCheckoutPopup()">Télécharger le plan et devis</button>
+  <p class="section-trust">Paiement sécurisé par mobile money</p>
 </section>
 
 <!-- OFFER SECTION -->
-<section class="plan-offer" id="checkout">
+<section class="plan-offer">
   <div class="offer-header">
     <span class="offer-badge">Offre flash : -50% de réduction</span>
     <p class="offer-valid">Valable ce <span id="offer-date-2"></span> avant 23h59</p>
@@ -164,55 +155,14 @@
   
   <div class="countdown">
     <span>Fin de l'offre dans :</span>
-    <div class="countdown-timer" id="countdown">
-      <span id="hours">19</span>h : <span id="minutes">46</span>min : <span id="seconds">30</span>s
+    <div class="countdown-timer">
+      <span id="hours">19</span>h <span id="minutes">46</span>min <span id="seconds">30</span>s
     </div>
   </div>
   
-  <!-- CHECKOUT FORM -->
-  <form class="checkout-form" id="checkout-form">
-    <div class="form-row">
-      <div class="form-field">
-        <label for="lastname">Nom</label>
-        <input type="text" id="lastname" name="lastname" required>
-      </div>
-      <div class="form-field">
-        <label for="firstname">Prénom</label>
-        <input type="text" id="firstname" name="firstname" required>
-      </div>
-    </div>
-    
-    <div class="form-field">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required>
-    </div>
-    
-    <div class="form-field">
-      <label for="phone">Téléphone WhatsApp</label>
-      <div class="phone-input">
-        <select id="country-code" name="country_code">
-          <option value="237">CM +237</option>
-          <option value="225">CI +225</option>
-          <option value="221">SN +221</option>
-          <option value="241">GA +241</option>
-          <option value="242">CG +242</option>
-          <option value="243">CD +243</option>
-        </select>
-        <input type="tel" id="phone" name="phone" placeholder="6XX XXX XXX" required>
-      </div>
-    </div>
-    
-    <div class="form-field">
-      <label for="promo">Code Promo (optionnel)</label>
-      <input type="text" id="promo" name="promo" placeholder="Entrez votre code">
-    </div>
-    
-    <button type="submit" class="checkout-submit">
-      Procéder au paiement →
-    </button>
-    
-    <p class="checkout-note">Vous serez redirigé vers la page de paiement Mobile Money Sécurisée</p>
-  </form>
+  <button type="button" class="offer-cta" onclick="openCheckoutPopup()">
+    Profitez de cette offre maintenant
+  </button>
   
   <div class="offer-trust">
     <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Satisfait ou remboursé</span>
@@ -221,7 +171,7 @@
 </section>
 
 <!-- TESTIMONIALS SECTION -->
-<section class="plan-testimonials">
+<section class="plan-testimonials" id="testimonials">
   <h2 class="section-title">Ce que disent nos clients</h2>
   <p class="section-subtitle">Ils planifient leur projet de construction</p>
   
@@ -243,7 +193,7 @@
     </div>
   </div>
   
-  <a href="#checkout" class="section-cta">Planifier votre projet maintenant</a>
+  <button type="button" class="section-cta" onclick="openCheckoutPopup()">Planifier votre projet maintenant</button>
   <p class="section-trust">Paiement sécurisé par mobile money</p>
 </section>
 
@@ -271,7 +221,7 @@
     </details>
   </div>
   
-  <a href="#checkout" class="section-cta">Je démarre mon projet maintenant</a>
+  <button type="button" class="section-cta" onclick="openCheckoutPopup()">Je démarre mon projet maintenant</button>
   <p class="section-trust">Paiement sécurisé par mobile money</p>
 </section>
 
@@ -285,14 +235,84 @@
   </div>
 </section>
 
-<!-- STICKY FOOTER -->
-<div class="plan-footer-sticky">
+<!-- STICKY FOOTER (only shows after testimonials section) -->
+<div class="plan-footer-sticky" id="sticky-footer">
   <div class="footer-info">
     <span class="footer-label">Plan et devis</span>
     <span class="footer-title">{{title}}</span>
     <span class="footer-price">{{priceDisplay}} FCFA</span>
   </div>
-  <a href="#checkout" class="footer-cta">Télécharger</a>
+  <button type="button" class="footer-cta" onclick="openCheckoutPopup()">Télécharger</button>
+</div>
+
+<!-- CHECKOUT POPUP -->
+<div class="checkout-popup" id="checkout-popup">
+  <div class="checkout-popup-content">
+    <button class="popup-close" onclick="closeCheckoutPopup()" aria-label="Fermer">×</button>
+    
+    <div class="popup-header">
+      <div class="popup-badge">-50%</div>
+      <h2>Finaliser votre commande</h2>
+      <p>{{title}}</p>
+      <div class="popup-price">
+        <span class="popup-price-old">30 000 FCFA</span>
+        <span class="popup-price-new">{{priceDisplay}} FCFA</span>
+      </div>
+    </div>
+    
+    <form class="popup-form" id="checkout-form">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="lastname">Nom</label>
+          <input type="text" id="lastname" name="lastname" required>
+        </div>
+        <div class="form-field">
+          <label for="firstname">Prénom</label>
+          <input type="text" id="firstname" name="firstname" required>
+        </div>
+      </div>
+      
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      
+      <div class="form-field">
+        <label for="phone">Téléphone WhatsApp</label>
+        <div class="phone-input">
+          <select id="country-code" name="country_code">
+            <option value="237">CM +237</option>
+            <option value="225">CI +225</option>
+            <option value="221">SN +221</option>
+            <option value="241">GA +241</option>
+            <option value="242">CG +242</option>
+            <option value="243">CD +243</option>
+          </select>
+          <input type="tel" id="phone" name="phone" placeholder="6XX XXX XXX" required>
+        </div>
+      </div>
+      
+      <div class="form-field">
+        <label for="promo">Code Promo (optionnel)</label>
+        <input type="text" id="promo" name="promo" placeholder="Entrez votre code">
+      </div>
+      
+      <button type="submit" class="popup-submit">
+        Procéder au paiement →
+      </button>
+      
+      <p class="popup-note">Vous serez redirigé vers la page de paiement Mobile Money Sécurisée</p>
+    </form>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fermer">×</button>
+  <button class="lightbox-prev" onclick="prevImage()" aria-label="Précédent">‹</button>
+  <button class="lightbox-next" onclick="nextImage()" aria-label="Suivant">›</button>
+  <img class="lightbox-image" id="lightbox-img" alt="Image agrandie">
+  <div class="lightbox-counter"><span id="lightbox-current">1</span> / <span id="lightbox-total">{{imagesCount}}</span></div>
 </div>
 
 <script>
@@ -357,7 +377,6 @@ function prevImage() {
   document.getElementById('lightbox-current').textContent = currentIndex + 1;
 }
 
-// Keyboard navigation
 document.addEventListener('keydown', (e) => {
   if (!document.getElementById('lightbox').classList.contains('active')) return;
   if (e.key === 'Escape') closeLightbox();
@@ -365,7 +384,6 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft') prevImage();
 });
 
-// Touch swipe for mobile
 let touchStartX = 0;
 let touchEndX = 0;
 document.getElementById('lightbox').addEventListener('touchstart', (e) => {
@@ -377,10 +395,48 @@ document.getElementById('lightbox').addEventListener('touchend', (e) => {
   if (touchEndX - touchStartX > 50) prevImage();
 }, false);
 
-// Click outside to close
 document.getElementById('lightbox').addEventListener('click', (e) => {
   if (e.target.id === 'lightbox') closeLightbox();
 });
+
+// Checkout Popup
+function openCheckoutPopup() {
+  document.getElementById('checkout-popup').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCheckoutPopup() {
+  document.getElementById('checkout-popup').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('checkout-popup').addEventListener('click', (e) => {
+  if (e.target.id === 'checkout-popup') closeCheckoutPopup();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeLightbox();
+    closeCheckoutPopup();
+  }
+});
+
+// Sticky footer visibility
+const testimonialsSection = document.getElementById('testimonials');
+const stickyFooter = document.getElementById('sticky-footer');
+
+function checkStickyFooter() {
+  if (!testimonialsSection) return;
+  const rect = testimonialsSection.getBoundingClientRect();
+  if (rect.top <= window.innerHeight) {
+    stickyFooter.classList.add('visible');
+  } else {
+    stickyFooter.classList.remove('visible');
+  }
+}
+
+window.addEventListener('scroll', checkStickyFooter);
+checkStickyFooter();
 
 // Checkout form
 window.planData = {{planJson}};
@@ -388,7 +444,7 @@ window.planData = {{planJson}};
 document.getElementById('checkout-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   
-  const submitBtn = e.target.querySelector('.checkout-submit');
+  const submitBtn = e.target.querySelector('.popup-submit');
   submitBtn.disabled = true;
   submitBtn.textContent = 'Redirection...';
   
