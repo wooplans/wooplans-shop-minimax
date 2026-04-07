@@ -317,10 +317,13 @@ function generatePlanPage(templates, plan, allPlans, assets) {
       firstImage: p.images[0] || ''
     }));
 
-  // Gallery thumbs inline format
-  const galleryThumbsInline = plan.images.slice(0, 4).map((img, i) =>
-    `<div class="gallery-thumb${i === 0 ? ' active' : ''}" onclick="switchGalleryImage('${img}')"><img src="${img}" alt="${plan.title} - ${i + 1}" loading="lazy"></div>`
+  // Masonry gallery items
+  const masonryItems = plan.images.map((img, i) =>
+    `<div class="masonry-item" onclick="openLightbox(${i})"><img src="${img}" alt="${plan.title} - Image ${i + 1}" loading="${i < 4 ? 'eager' : 'lazy'}"></div>`
   ).join('');
+
+  // Lightbox images array for JS
+  const lightboxImages = plan.images.map(img => `"${img}"`).join(',');
 
   // Similar plans inline format
   const similarPlansInline = similarPlans.map(p => `
@@ -352,6 +355,9 @@ function generatePlanPage(templates, plan, allPlans, assets) {
 
   // PDF preview (use first image or a placeholder)
   const pdfPreviewUrl = plan.images[0] || '';
+
+  // Images count for lightbox
+  const imagesCount = plan.images.length;
 
   const breadcrumbs = [
     { name: 'Accueil', url: '/' },
@@ -407,10 +413,9 @@ function generatePlanPage(templates, plan, allPlans, assets) {
       plan: JSON.stringify(plan),
       planJson: JSON.stringify(plan),
       ...plan,
-      galleryThumbsInline,
-      galleryImages: plan.images.map((img, i) =>
-        `<img class="gal-img" data-index="${i}" src="${img}" alt="${plan.title}"${i === 0 ? ' fetchpriority="high"' : ''}>`
-      ).join(''),
+      masonryItems,
+      lightboxImages,
+      imagesCount,
       priceDisplay: plan.price.toLocaleString('fr-FR'),
       similarPlansInline,
       roomsList,

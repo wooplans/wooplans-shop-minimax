@@ -37,15 +37,11 @@
 
 <!-- GALLERY SECTION -->
 <section class="plan-gallery-section">
-  <h2 class="section-title">Découvrez {{title}} en 3D</h2>
-  <p class="section-subtitle">Visualisez chaque détail de votre futur {{type}}</p>
+  <h2 class="section-title">Découvrez {{title}} en images</h2>
+  <p class="section-subtitle">Cliquez sur une image pour l'agrandir</p>
   
-  <div class="gallery-main">
-    <img src="{{firstImage}}" alt="{{title}}" id="gallery-main-img">
-  </div>
-  
-  <div class="gallery-thumbs">
-    {{galleryThumbsInline}}
+  <div class="masonry-grid">
+    {{masonryItems}}
   </div>
   
   <div class="share-bar">
@@ -67,8 +63,17 @@
   </div>
   
   <a href="#checkout" class="section-cta">Télécharger le plan et devis</a>
-  <p class="section-trust">Paiement sécurisé par mobile money {pays}</p>
+  <p class="section-trust">Paiement sécurisé par mobile money</p>
 </section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fermer">×</button>
+  <button class="lightbox-prev" onclick="prevImage()" aria-label="Précédent">‹</button>
+  <button class="lightbox-next" onclick="nextImage()" aria-label="Suivant">›</button>
+  <img class="lightbox-image" id="lightbox-img" alt="Image agrandie">
+  <div class="lightbox-counter"><span id="lightbox-current">1</span> / <span id="lightbox-total">{{imagesCount}}</span></div>
+</div>
 
 <!-- PRESENTATION SECTION -->
 <section class="plan-presentation">
@@ -323,10 +328,59 @@ function copyPlanLink() {
   });
 }
 
-// Gallery image switch
-function switchGalleryImage(src) {
-  document.getElementById('gallery-main-img').src = src;
+// Lightbox
+const images = [{{lightboxImages}}];
+let currentIndex = 0;
+
+function openLightbox(index) {
+  currentIndex = index;
+  document.getElementById('lightbox-img').src = images[index];
+  document.getElementById('lightbox-current').textContent = index + 1;
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
 }
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function nextImage() {
+  currentIndex = (currentIndex + 1) % images.length;
+  document.getElementById('lightbox-img').src = images[currentIndex];
+  document.getElementById('lightbox-current').textContent = currentIndex + 1;
+}
+
+function prevImage() {
+  currentIndex = (currentIndex - 1 + images.length) % images.length;
+  document.getElementById('lightbox-img').src = images[currentIndex];
+  document.getElementById('lightbox-current').textContent = currentIndex + 1;
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('lightbox').classList.contains('active')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowRight') nextImage();
+  if (e.key === 'ArrowLeft') prevImage();
+});
+
+// Touch swipe for mobile
+let touchStartX = 0;
+let touchEndX = 0;
+document.getElementById('lightbox').addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+}, false);
+document.getElementById('lightbox').addEventListener('touchend', (e) => {
+  touchEndX = e.changedTouches[0].screenX;
+  if (touchStartX - touchEndX > 50) nextImage();
+  if (touchEndX - touchStartX > 50) prevImage();
+}, false);
+
+// Click outside to close
+document.getElementById('lightbox').addEventListener('click', (e) => {
+  if (e.target.id === 'lightbox') closeLightbox();
+});
 
 // Checkout form
 window.planData = {{planJson}};
