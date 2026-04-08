@@ -70,7 +70,7 @@
 <!-- NAV -->
 <nav id="nav">
   <a href="/" class="nav-logo"><span class="nav-dot"></span>WooPlans</a>
-  <span class="nav-link" onclick="scrollToConcept()">Comment ça marche</span>
+  <span class="nav-link" onclick="if(typeof scrollToConcept==='function')scrollToConcept();else document.getElementById('how-it-works')?.scrollIntoView({behavior:'smooth'})">Comment ça marche</span>
   <a class="nav-cta" href="/plans/villas/">Voir les plans</a>
 </nav>
 

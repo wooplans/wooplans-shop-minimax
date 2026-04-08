@@ -4,7 +4,7 @@ const CHECKOUT_API = 'https://xlmwzvkqjnojdldzrol.supabase.co/functions/v1/chari
 
 // Country data with phone codes
 const COUNTRIES = [
-  { code: 'CM', name: 'Cameroun', dial: '+237', flag: '🇨🇮' },
+  { code: 'CM', name: 'Cameroun', dial: '+237', flag: '🇨🇲' },
   { code: 'CI', name: "Côte d'Ivoire", dial: '+225', flag: '🇨🇮' },
   { code: 'SN', name: 'Sénégal', dial: '+221', flag: '🇸🇳' },
   { code: 'FR', name: 'France', dial: '+33', flag: '🇫🇷' },

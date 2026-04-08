@@ -16,7 +16,7 @@
 <section class="plan-hero">
   <div class="hero-image-container">
     <img src="{{firstImage}}" alt="{{title}}" class="hero-image" loading="eager">
-    <span class="plan-badge">{{type === 'villa' ? 'Villa' : 'Duplex'}}</span>
+    <span class="plan-badge">{{typeName}}</span>
   </div>
   
   <div class="hero-content">
@@ -68,8 +68,8 @@
 
 <!-- PRESENTATION SECTION -->
 <section class="plan-presentation">
-  <h2 class="section-title">Présentation de la {{type === 'villa' ? 'villa' : 'maison'}} {{title}}</h2>
-  <p class="plan-specs-header">{{type === 'villa' ? 'Villa' : 'Maison'}} de {{surface}} m² · {{rooms}} chambres · {{bathrooms}} salles de bain</p>
+  <h2 class="section-title">Présentation de la {{typeNameLower}} {{title}}</h2>
+  <p class="plan-specs-header">{{typeName}} de {{surface}} m² · {{rooms}} chambres · {{bathrooms}} salles de bain</p>
   
   <p class="plan-description">{{description}}</p>
   
@@ -466,6 +466,7 @@ document.getElementById('checkout-form').addEventListener('submit', async (e) =>
         plan_id: window.planData.id,
         plan_slug: window.planData.slug,
         plan_title: window.planData.title,
+        redirect_url: 'https://shop.wooplans.com/merci?plan=' + window.planData.slug,
         discount_code: formData.get('promo') || undefined
       })
     });

@@ -4,7 +4,7 @@
  * Fetch plans: npm run fetch-plans
  */
 
-import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
@@ -125,22 +125,15 @@ async function fetchPlansFromSupabase() {
     bathrooms: p.baths || 0,
     surface: parseFloat(p.area) || 0,
     floors: p.floors || 1,
-    price: parseInt(p.priceBasic?.replace(/\s/g, '')) || 14900,
+    price: parseInt(String(p.priceBasic || '14900').replace(/\s/g, '')) || 14900,
     estimateCost: p.cost || '',
     images: p.images || [],
     features: p.features || [],
-    extrasBasic: p.extrasBasic || [],
-    extrasComplete: p.extrasComplete || [],
-    rating: p.rating || 4.8,
-    reviews: p.reviews || 0,
-    pdfBasicUrl: p.pdf_basic_url || '',
-    chariowBasicId: p.chariow_basic_id || '',
-    chariowProductId: p.type === 'villa' ? 'prd_n770b0' : 'prd_krnnh9',
-    status: p.status,
-    createdAt: p.created_at
+    typeName: p.type === 'villa' ? 'Villa' : 'Duplex',
+    typeNameLower: p.type === 'villa' ? 'villa' : 'maison',
   }));
-  
-  log(`Fetched ${plans.length} plans`);
+
+  log('Fetched ' + plans.length + ' plans');
   return plans;
 }
 
@@ -161,47 +154,44 @@ function transformPlan(p) {
     estimateCost: p.cost || '',
     images: p.images || [],
     features: p.features || [],
-    extrasBasic: p.extrasBasic || [],
-    extrasComplete: p.extrasComplete || [],
     rating: parseFloat(p.rating) || 4.8,
     reviews: parseInt(p.reviews) || 0,
     pdfBasicUrl: p.pdf_basic_url || '',
     chariowBasicId: p.chariow_basic_id || '',
     chariowProductId: p.type === 'villa' ? 'prd_n770b0' : 'prd_krnnh9',
     status: p.status,
-    createdAt: p.created_at
+    createdAt: p.created_at,
+    typeName: p.type === 'villa' ? 'Villa' : 'Duplex',
+    typeNameLower: p.type === 'villa' ? 'villa' : 'maison',
   };
 }
 
 async function loadOrFetchPlans() {
   const plansFile = join(DATA, 'plans.json');
   
-  // Check for existing data file
   if (existsSync(plansFile)) {
-    const stat = (await import('fs')).statSync(plansFile);
+    const stat = statSync(plansFile);
     const age = Date.now() - stat.mtimeMs;
-    const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+    const maxAge = 24 * 60 * 60 * 1000;
     
     if (age < maxAge) {
-      info(`Using cached plans.json (${Math.round(age / 60000)} min old)`);
+      info('Using cached plans.json (' + Math.round(age / 60000) + ' min old)');
       const rawPlans = readJson(plansFile);
       return rawPlans.map(transformPlan);
     }
   }
   
-  // Fetch fresh if --fetch flag or no cache
   if (process.argv.includes('--fetch') || !existsSync(plansFile)) {
     const plans = await fetchPlansFromSupabase();
     write(plansFile, JSON.stringify(plans, null, 2));
-    success(`Saved ${plans.length} plans to data/plans.json`);
-    return plans;
+    success('Saved ' + plans.length + ' plans to data/plans.json');
+    return plans.map(transformPlan);
   }
   
   const rawPlans = readJson(plansFile);
   return rawPlans.map(transformPlan);
 }
 
-// ── LOAD TEMPLATES ────────────────────────────────────────────────────────────
 function loadTemplates() {
   log('Loading templates...');
   return {
@@ -215,7 +205,6 @@ function loadTemplates() {
   };
 }
 
-// ── LOAD ASSETS ───────────────────────────────────────────────────────────────
 function loadAssets() {
   return {
     criticalCss: read(join(ASSETS, 'css', 'critical.css')),
@@ -229,7 +218,6 @@ function loadAssets() {
   };
 }
 
-// ── GENERATE PAGES ───────────────────────────────────────────────────────────
 function generateHomePage(templates, plans, assets) {
   const plansItems = plans.map(p => ({
     slug: p.slug,
@@ -244,12 +232,12 @@ function generateHomePage(templates, plans, assets) {
     firstImage: p.images[0] || '',
     badgeClass: p.type === 'villa' ? 'badge-villa' : 'badge-duplex',
     badgeText: p.type === 'villa' ? 'Villa' : 'Duplex',
-    priceDisplay: `${p.price.toLocaleString('fr-FR')} FCFA`
+    priceDisplay: p.price.toLocaleString('fr-FR') + ' FCFA'
   }));
-  
+
   const villas = plans.filter(p => p.type === 'villa').length;
   const duplexes = plans.filter(p => p.type === 'duplex').length;
-  
+
   const homeData = {
     title: 'WooPlans — Plans de Maison Modernes pour l\'Afrique | Villas & Duplex',
     description: 'Téléchargez instantanément des plans de maison conçus pour l\'Afrique. +50 villas et duplex modernes avec estimation des coûts de construction. Cameroun, Côte d\'Ivoire, Sénégal.',
@@ -264,7 +252,7 @@ function generateHomePage(templates, plans, assets) {
     criticalCss: assets.criticalCss,
     bodyClass: 'home'
   };
-  
+
   return render(templates.base, homeData);
 }
 
@@ -274,24 +262,24 @@ function generateHomeJsonLd() {
     '@graph': [
       {
         '@type': 'WebSite',
-        '@id': `${CFG.siteUrl}/#website`,
+        '@id': CFG.siteUrl + '/#website',
         url: CFG.siteUrl,
         name: 'WooPlans',
         description: 'Plans de maison premium conçus pour l\'Afrique',
         potentialAction: {
           '@type': 'SearchAction',
-          target: `${CFG.siteUrl}/?s={search_term_string}`,
+          target: CFG.siteUrl + '/?s={search_term_string}',
           'query-input': 'required name=search_term_string'
         }
       },
       {
         '@type': 'Organization',
-        '@id': `${CFG.siteUrl}/#organization`,
+        '@id': CFG.siteUrl + '/#organization',
         name: 'WooPlans',
         url: CFG.siteUrl,
         logo: {
           '@type': 'ImageObject',
-          url: `${CFG.siteUrl}/logo.png`
+          url: CFG.siteUrl + '/logo.png'
         },
         sameAs: [
           'https://www.facebook.com/wooplans',
@@ -312,6 +300,7 @@ function generatePlanPage(templates, plan, allPlans, assets) {
       title: p.title,
       type: p.type,
       rooms: p.rooms,
+      bathrooms: p.bathrooms,
       surface: p.surface,
       price: p.price.toLocaleString('fr-FR'),
       firstImage: p.images[0] || ''
@@ -334,7 +323,7 @@ function generatePlanPage(templates, plan, allPlans, assets) {
       </div>
       <div class="similar-card-content">
         <h3 class="similar-card-title">${p.title}</h3>
-        <p class="similar-card-specs">${p.type === 'villa' ? 'Villa' : 'Duplex'} · ${p.surface} m² · ${p.rooms} chambres · 2 salles de bain</p>
+        <p class="similar-card-specs">${p.type === 'villa' ? 'Villa' : 'Duplex'} · ${p.surface} m² · ${p.rooms} chambres · ${p.bathrooms} salles de bain</p>
         <div class="similar-card-footer">
           <div class="similar-card-price">
             <span>À PARTIR DE</span>
@@ -361,7 +350,7 @@ function generatePlanPage(templates, plan, allPlans, assets) {
 
   const breadcrumbs = [
     { name: 'Accueil', url: '/' },
-    { name: plan.type === 'villa' ? 'Villas' : 'Duplex', url: `/plans/${plan.type}s/` },
+    { name: plan.type === 'villa' ? 'Villas' : 'Duplex', url: `/plans/${plan.type === 'villa' ? 'villas' : 'duplex'}/` },
     { name: plan.title, url: `/plans/${plan.slug}/` }
   ];
 
@@ -811,6 +800,16 @@ async function build() {
       .replace('{{filtersJsPath}}', filtersJsPath)
       .replace('{{turboNavJsPath}}', turboNavJsPath)
       .replace('{{analyticsJsPath}}', analyticsJsPath);
+    
+    // Update category template
+    templates.category = templates.category
+      .replace('{{filtersJsPath}}', filtersJsPath);
+    
+    // Update merci template
+    templates.merci = templates.merci
+      .replace('{{mainCssPath}}', mainCssPath)
+      .replace('{{analyticsJsPath}}', analyticsJsPath)
+      .replace('{{turboNavJsPath}}', turboNavJsPath);
     
     // 5. Generate homepage
     log('Generating homepage...');
