@@ -1,6 +1,8 @@
 // Checkout Modal Logic
 
-const CHECKOUT_API = 'https://xlmwzvkqjnojdldzrol.supabase.co/functions/v1/chariow-checkout';
+// TODO: Replace with your Cloudflare Worker URL after deployment
+// Deploy checkout-worker first, then update this URL
+const CHECKOUT_API = 'https://wooplans-checkout.workers.dev';
 
 // Country data with phone codes
 const COUNTRIES = [
