@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 
+# Data cache (fetched at build time)
+data/plans.json
+
 # Environment
 .env
 .env.local

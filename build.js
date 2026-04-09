@@ -445,13 +445,13 @@ function generatePlanPage(templates, plan, allPlans, assets) {
     canonical: `${CFG.siteUrl}/plans/${plan.slug}/`,
     jsonLd,
     content: render(templates.plan, {
-      plan: JSON.stringify(plan),
-      planJson: JSON.stringify(plan),
+      planJson: JSON.stringify(plan).replace(/<\/script>/gi, '<\\/script>'),
       ...plan,
       masonryItems,
       lightboxImages,
       imagesCount,
       priceDisplay: plan.price.toLocaleString('fr-FR'),
+      originalPriceDisplay: Math.max(plan.price * 2, 30000).toLocaleString('fr-FR') + ' Fcfa',
       similarPlansInline,
       roomsList,
       pdfPreviewUrl,
@@ -752,6 +752,12 @@ async function build() {
       success('sw.js copied');
     }
     
+    // Copy manifest.json
+    if (existsSync(join(ROOT, 'manifest.json'))) {
+      cpSync(join(ROOT, 'manifest.json'), join(DIST, 'manifest.json'));
+      success('manifest.json copied');
+    }
+    
     // Copy _headers and _redirects if they exist
     if (existsSync(join(ROOT, '_headers'))) {
       cpSync(join(ROOT, '_headers'), join(DIST, '_headers'));
@@ -789,7 +795,6 @@ async function build() {
 
     // Update plan template
     templates.plan = templates.plan
-      .replace('{{galleryJsPath}}', galleryJsPath)
       .replace('{{turboNavJsPath}}', turboNavJsPath)
       .replace('{{analyticsJsPath}}', analyticsJsPath)
       .replace('{{checkoutJsPath}}', checkoutJsPath)

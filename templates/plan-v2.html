@@ -25,7 +25,7 @@
     
     <div class="hero-pricing">
       <span class="current-price">{{priceDisplay}} <span class="currency">Fcfa</span></span>
-      <span class="original-price">Au lieu de <del>30 000 Fcfa</del></span>
+      <span class="original-price">Au lieu de <del>{{originalPriceDisplay}}</del></span>
     </div>
     
     <button type="button" class="hero-cta" onclick="openCheckoutPopup()">
@@ -123,7 +123,7 @@
   
   <div class="offer-pricing">
     <span class="offer-current">{{priceDisplay}} <span>Fcfa</span></span>
-    <span class="offer-original">Au lieu de <del>30 000 Fcfa</del></span>
+    <span class="offer-original">Au lieu de <del>{{originalPriceDisplay}}</del></span>
   </div>
   
   <div class="offer-mockup">
@@ -255,7 +255,7 @@
       <h2>Finaliser votre commande</h2>
       <p>{{title}}</p>
       <div class="popup-price">
-        <span class="popup-price-old">30 000 FCFA</span>
+        <span class="popup-price-old">{{originalPriceDisplay}}</span>
         <span class="popup-price-new">{{priceDisplay}} FCFA</span>
       </div>
     </div>
