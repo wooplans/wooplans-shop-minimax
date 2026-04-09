@@ -189,8 +189,23 @@ window.PLANS_DATA = {{plansJson}};
   var urlParams = new URLSearchParams(window.location.search);
   var planSlug = urlParams.get('plan');
   
+  // Define tracking functions first
+  function trackPurchaseGeneric() {
+    if (!window.fbq) return false;
+    fbq('track', 'Purchase', {
+      value: 14900,
+      currency: 'XAF',
+      content_name: planSlug || 'Plan WooPlans',
+      content_type: 'product',
+      content_ids: [planSlug || 'unknown'],
+      num_items: 1
+    });
+    return true;
+  }
+  
   if (!planSlug) {
     document.getElementById('merci-plan-title').textContent = 'Plan non spécifié';
+    trackPurchaseGeneric();
     return;
   }
   
@@ -201,7 +216,6 @@ window.PLANS_DATA = {{plansJson}};
   if (!plan) {
     document.getElementById('merci-plan-title').textContent = 'Commande confirmée';
     document.getElementById('merci-plan-type').textContent = 'Merci pour votre achat !';
-    // Track purchase even if plan details not found
     trackPurchaseGeneric();
     return;
   }
@@ -224,19 +238,6 @@ window.PLANS_DATA = {{plansJson}};
       content_name: plan.title,
       content_type: 'product',
       content_ids: [plan.id],
-      num_items: 1
-    });
-    return true;
-  }
-
-  function trackPurchaseGeneric() {
-    if (!window.fbq) return false;
-    fbq('track', 'Purchase', {
-      value: 14900,
-      currency: 'XAF',
-      content_name: planSlug || 'Plan WooPlans',
-      content_type: 'product',
-      content_ids: [planSlug || 'unknown'],
       num_items: 1
     });
     return true;
