@@ -156,9 +156,11 @@ export default {
       const purchaseId = chariowData.data?.purchase?.id;
 
       if (step === 'payment' && checkoutUrl) {
+        const url = new URL(checkoutUrl);
+        url.searchParams.set('country', body.phone.country_code);
         return new Response(
           JSON.stringify({ 
-            checkout_url: checkoutUrl,
+            checkout_url: url.toString(),
             purchase_id: purchaseId,
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -281,12 +281,28 @@
         <label for="phone">Téléphone WhatsApp</label>
         <div class="phone-input">
           <select id="country-code" name="country_code">
-            <option value="CM">CM +237</option>
-            <option value="CI">CI +225</option>
-            <option value="SN">SN +221</option>
-            <option value="GA">GA +241</option>
-            <option value="CG">CG +242</option>
-            <option value="CD">CD +243</option>
+            <option value="CM">🇨🇲 +237</option>
+            <option value="CI">🇨🇮 +225</option>
+            <option value="SN">🇸🇳 +221</option>
+            <option value="GA">🇬🇦 +241</option>
+            <option value="CG">🇨🇬 +242</option>
+            <option value="CD">🇨🇩 +243</option>
+            <option value="ML">🇲🇱 +223</option>
+            <option value="BF">🇧🇫 +226</option>
+            <option value="NE">🇳🇪 +227</option>
+            <option value="TG">🇹🇬 +228</option>
+            <option value="BJ">🇧🇯 +229</option>
+            <option value="GH">🇬🇭 +233</option>
+            <option value="NG">🇳🇬 +234</option>
+            <option value="CF">🇨🇫 +236</option>
+            <option value="TD">🇹🇩 +235</option>
+            <option value="MA">🇲🇦 +212</option>
+            <option value="DZ">🇩🇿 +213</option>
+            <option value="TN">🇹🇳 +216</option>
+            <option value="FR">🇫🇷 +33</option>
+            <option value="BE">🇧🇪 +32</option>
+            <option value="CA">🇨🇦 +1</option>
+            <option value="US">🇺🇸 +1</option>
           </select>
           <input type="tel" id="phone" name="phone" placeholder="6XX XXX XXX" required>
         </div>
@@ -440,6 +456,34 @@ checkStickyFooter();
 
 // Checkout form
 window.planData = {{planJson}};
+
+const PHONE_PLACEHOLDERS = {
+  CM: '6XX XXX XXX', CI: '0X XX XX XX', SN: '7X XXX XX XX',
+  GA: '0X XX XX XX', CG: '06 XX XX XX', CD: '0X XX XX XXX',
+  ML: '7X XX XX XX', BF: '7X XX XX XX', NE: '9X XX XX XX',
+  TG: '9X XX XX XX', BJ: '9X XX XX XX', GH: '0XX XXX XXXX',
+  NG: '0XXX XXX XXXX', CF: '7X XX XX XX', TD: '6X XX XX XX',
+  MA: '06XX-XXXXXX', DZ: '0X XX XX XX XX', TN: 'XX XXX XXX',
+  FR: '06 XX XX XX XX', BE: '04XX XX XX XX', CA: '(XXX) XXX-XXXX',
+  US: '(XXX) XXX-XXXX'
+};
+
+const countrySelect = document.getElementById('country-code');
+const phoneInput = document.getElementById('phone');
+
+function updatePhonePlaceholder() {
+  phoneInput.placeholder = PHONE_PLACEHOLDERS[countrySelect.value] || 'Numéro de téléphone';
+}
+
+countrySelect.addEventListener('change', updatePhonePlaceholder);
+
+fetch('https://ipapi.co/json/').then(r => r.json()).then(data => {
+  const code = data.country_code;
+  if (countrySelect.querySelector('option[value="' + code + '"]')) {
+    countrySelect.value = code;
+  }
+  updatePhonePlaceholder();
+}).catch(() => updatePhonePlaceholder());
 
 document.getElementById('checkout-form').addEventListener('submit', async (e) => {
   e.preventDefault();
