@@ -165,7 +165,7 @@ async function handleCheckout(e) {
         last_name: lastName,
         phone: {
           number: phoneNumber.replace(/\s+/g, ''),
-          country_code: dialCode.replace('+', ''),
+          country_code: selectedCountry.code,
         },
         plan_id: currentPlan.id,
         plan_slug: currentPlan.slug,
