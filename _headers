@@ -7,7 +7,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), microphone=(), camera=()
   X-XSS-Protection: 1; mode=block
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://connect.facebook.net https://www.clarity.ms; style-src 'self' 'unsafe-inline'; img-src 'self' https://wooplans.b-cdn.net data:; font-src 'self'; connect-src 'self' https://wooplans.b-cdn.net https://xlmwzvkqjnojdldzrol.supabase.co https://api.chariow.com https://ipapi.co; frame-src https://www.facebook.com
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://connect.facebook.net https://www.clarity.ms; style-src 'self' 'unsafe-inline'; img-src 'self' https://wooplans.b-cdn.net data:; font-src 'self'; connect-src 'self' https://wooplans.b-cdn.net https://wooplans-checkout.wooplans237.workers.dev https://api.chariow.com https://ipapi.co; frame-src https://www.facebook.com
 
 # Static assets - aggressive caching (1 year)
 /css/*
