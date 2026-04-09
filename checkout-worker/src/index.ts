@@ -135,45 +135,52 @@ export default {
         body: JSON.stringify(chariowPayload),
       });
 
-      const chariowData: ChariowCheckoutResponse = await chariowResponse.json();
+      const chariowData = await chariowResponse.json();
+      console.log('Chariow response status:', chariowResponse.status, 'body:', JSON.stringify(chariowData));
 
-      if (chariowData.errors && Object.keys(chariowData.errors).length > 0) {
+      if (!chariowResponse.ok) {
+        const errors = chariowData.errors || {};
         return new Response(
           JSON.stringify({ 
-            error: 'Validation failed', 
-            errors: chariowData.errors,
-            message: chariowData.message 
+            error: chariowData.message || 'Chariow API error', 
+            errors,
+            chariow_status: chariowResponse.status,
+            sent_payload: chariowPayload
           }),
-          { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: chariowResponse.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      if (chariowData.data.step === 'payment' && chariowData.data.payment?.checkout_url) {
+      const step = chariowData.data?.step;
+      const checkoutUrl = chariowData.data?.payment?.checkout_url;
+      const purchaseId = chariowData.data?.purchase?.id;
+
+      if (step === 'payment' && checkoutUrl) {
         return new Response(
           JSON.stringify({ 
-            checkout_url: chariowData.data.payment.checkout_url,
-            purchase_id: chariowData.data.purchase?.id,
+            checkout_url: checkoutUrl,
+            purchase_id: purchaseId,
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      if (chariowData.data.step === 'completed') {
+      if (step === 'completed') {
         return new Response(
           JSON.stringify({ 
             completed: true,
-            purchase_id: chariowData.data.purchase?.id,
+            purchase_id: purchaseId,
             message: 'Purchase completed'
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      if (chariowData.data.step === 'already_purchased') {
+      if (step === 'already_purchased') {
         return new Response(
           JSON.stringify({ 
             error: 'already_purchased',
-            message: chariowData.data.message || 'You have already purchased this product'
+            message: chariowData.data?.message || 'You have already purchased this product'
           }),
           { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
