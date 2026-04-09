@@ -250,6 +250,12 @@
   <div class="checkout-popup-content">
     <button class="popup-close" onclick="closeCheckoutPopup()" aria-label="Fermer">×</button>
     
+    <div id="checkout-loading" style="display:none;position:absolute;inset:0;background:rgba(250,247,242,0.95);z-index:10;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;border-radius:16px;">
+      <div class="checkout-spinner"></div>
+      <p style="font-size:1rem;font-weight:600;color:#1a1208;">Redirection vers le paiement...</p>
+      <p style="font-size:0.85rem;color:#7A736C;">Veuillez ne pas fermer cette page</p>
+    </div>
+    
     <div class="popup-header">
       <div class="popup-badge">-50%</div>
       <h2>Finaliser votre commande</h2>
@@ -519,6 +525,7 @@ document.getElementById('checkout-form').addEventListener('submit', async (e) =>
     const data = await response.json();
     
     if (data.checkout_url) {
+      document.getElementById('checkout-loading').style.display = 'flex';
       window.location.href = data.checkout_url;
     } else {
       alert(data.error || data.message || 'Une erreur est survenue');
