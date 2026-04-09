@@ -7,7 +7,7 @@
  *   - Network First avec fallback (API)
  */
 
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const STATIC_CACHE  = `wooplans-static-${CACHE_VERSION}`;
 const IMAGE_CACHE   = `wooplans-images-${CACHE_VERSION}`;
 const FONT_CACHE    = `wooplans-fonts-${CACHE_VERSION}`;
@@ -125,6 +125,7 @@ self.addEventListener('fetch', e => {
 
   if (req.method !== 'GET') return;
   if (url.protocol === 'chrome-extension:') return;
+  if (url.origin !== self.location.origin) return;
 
   // API Supabase / Chariow → Network First
   if (url.hostname.includes('supabase') || url.hostname.includes('chariow')) {
@@ -156,7 +157,10 @@ self.addEventListener('fetch', e => {
       caches.match(req).then(cached => {
         if (cached) return cached;
         return fetch(req).then(r => {
-          if (r.ok) caches.open(STATIC_CACHE).then(c => c.put(req, r.clone()));
+          if (r.ok) {
+            const clone = r.clone();
+            caches.open(STATIC_CACHE).then(c => c.put(req, clone));
+          }
           return r;
         });
       })
