@@ -15,6 +15,9 @@ interface CheckoutRequest {
   plan_slug?: string;
   plan_title?: string;
   redirect_url?: string;
+  discount_code?: string;
+  original_price?: number;
+  discounted_price?: number;
 }
 
 interface ChariowCheckoutResponse {
@@ -124,6 +127,7 @@ export default {
       };
 
       if (redirectUrl) chariowPayload.redirect_url = redirectUrl;
+      if (body.discount_code) chariowPayload.discount_code = body.discount_code;
       if (Object.keys(custom_metadata).length > 0) chariowPayload.custom_metadata = custom_metadata;
 
       const chariowResponse = await fetch(`${CHARIOW_API_URL}/checkout`, {
