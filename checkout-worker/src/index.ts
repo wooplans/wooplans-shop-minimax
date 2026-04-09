@@ -172,11 +172,13 @@ export default {
       }
 
       if (step === 'completed') {
+        // For free products, redirect to the thank you page
+        const thankYouUrl = redirectUrl || `https://shop.wooplans.com/merci?plan=${body.plan_slug || ''}&purchase=${purchaseId}`;
         return new Response(
           JSON.stringify({ 
-            completed: true,
+            checkout_url: thankYouUrl,
             purchase_id: purchaseId,
-            message: 'Purchase completed'
+            completed: true
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
