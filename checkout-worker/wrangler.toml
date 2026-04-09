@@ -3,13 +3,15 @@ main = "src/index.ts"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 
+[vars]
+VILLA_PRODUCT_ID = "prd_n770b0"
+DUPLEX_PRODUCT_ID = "prd_krnnh9"
+CHARIOW_API_URL = "https://api.chariow.com/v1"
+
 [env.production]
 name = "wooplans-checkout"
 
-[vars]
-# Default product IDs (can be overridden per request)
+[env.production.vars]
 VILLA_PRODUCT_ID = "prd_n770b0"
 DUPLEX_PRODUCT_ID = "prd_krnnh9"
-
-# Chariow API base URL
 CHARIOW_API_URL = "https://api.chariow.com/v1"
