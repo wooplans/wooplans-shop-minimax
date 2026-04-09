@@ -1391,10 +1391,14 @@ Si une information est absente du PDF, mets null.`}
     if(d.baths!=null) document.getElementById('f-baths').value=d.baths;
     if(d.floors!=null) document.getElementById('f-floors').value=d.floors;
     if(d.terrain){
-      const tv='à partir de '+d.terrain+' m²';
+      const val=parseInt(d.terrain);
       const sel=document.getElementById('f-terrain');
-      const opt=Array.from(sel.options).find(o=>o.value===tv);
-      if(opt) sel.value=opt.value;
+      const thresholds=[200,300,400,500];
+      const best=thresholds.find(t=>t>=val);
+      if(best){
+        const opt=Array.from(sel.options).find(o=>o.value.includes(best+''));
+        if(opt) sel.value=opt.value;
+      }
     }
     if(d.description) document.getElementById('f-desc').value=d.description;
     if(d.features&&d.features.length) document.getElementById('f-features').value=d.features.join('\n');
@@ -1643,7 +1647,8 @@ async function uploadImages(planSlug, stepOffset, totalSteps){
       const fileLabel=`Image ${uploadIdx+1} / ${n} — ${file.name}`;
       setProgress('Compression + upload des images...', fileLabel, ((stepOffset+uploadIdx)/totalSteps)*100);
       file=await compressImage(file);
-      const path=`${planSlug}/images/${planSlug}-img-${uploadIdx+1}.jpg`;
+      const ts=Date.now();
+      const path=`${planSlug}/images/${planSlug}-img-${uploadIdx+1}-${ts}.jpg`;
       try{
         const url=await uploadToBunnyXHR(file, path, pct=>{
           const overall=((stepOffset+uploadIdx+pct)/totalSteps)*100;
