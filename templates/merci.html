@@ -211,5 +211,27 @@ window.PLANS_DATA = {{plansJson}};
     downloadBtn.href = plan.pdfBasicUrl;
     downloadBtn.style.display = 'inline-flex';
   }
+
+  function trackPurchase() {
+    if (!window.fbq) return false;
+    var price = parseInt(String(plan.price || '14900').replace(/\s/g, '')) || 14900;
+    fbq('track', 'Purchase', {
+      value: price,
+      currency: 'XAF',
+      content_name: plan.title,
+      content_type: 'product',
+      content_ids: [plan.id],
+      num_items: 1
+    });
+    return true;
+  }
+
+  if (!trackPurchase()) {
+    var tries = 0;
+    var poll = setInterval(function() {
+      tries++;
+      if (trackPurchase() || tries > 20) clearInterval(poll);
+    }, 300);
+  }
 })();
 </script>
