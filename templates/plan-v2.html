@@ -314,9 +314,11 @@
         </div>
       </div>
       
-      <div class="form-field">
-        <label for="promo">Code Promo (optionnel)</label>
-        <input type="text" id="promo" name="promo" placeholder="Entrez votre code">
+      <div class="form-field" style="text-align:center">
+        <a href="#" id="promo-toggle" onclick="event.preventDefault();document.getElementById('promo-field').style.display='block';this.style.display='none';document.getElementById('promo').focus()">Code promo ?</a>
+        <div id="promo-field" style="display:none;margin-top:8px">
+          <input type="text" id="promo" name="promo" placeholder="Entrez votre code">
+        </div>
       </div>
       
       <button type="submit" class="popup-submit">
