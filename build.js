@@ -434,11 +434,6 @@ function generatePlanPage(templates, plan, allPlans, assets) {
     ]
   });
 
-  // Load promo codes
-  const promoCodesPath = join(DATA, 'promo-codes.json');
-  const promoCodes = existsSync(promoCodesPath) ? readJson(promoCodesPath) : [];
-  const promoCodesJson = JSON.stringify(promoCodes);
-
   const planData = {
     title: `${plan.title} — Plan et Devis | WooPlans`,
     description: `Téléchargez le plan ${plan.title} (${plan.surface}m², ${plan.rooms} chambres). Plan détaillé + estimation coûts construction. Conçu pour l'Afrique.`,
@@ -451,7 +446,6 @@ function generatePlanPage(templates, plan, allPlans, assets) {
     jsonLd,
     content: render(templates.plan, {
       planJson: JSON.stringify(plan).replace(/<\/script>/gi, '<\\/script>'),
-      promoCodesJson: promoCodesJson.replace(/<\/script>/gi, '<\\/script>'),
       ...plan,
       masonryItems,
       lightboxImages,
